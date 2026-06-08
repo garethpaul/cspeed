@@ -48,3 +48,6 @@ behavior.
 - Broad extension features before README and package metadata are aligned
 - Message handlers that execute arbitrary commands
 - TypeScript changes that cannot compile locally
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
