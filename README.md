@@ -55,8 +55,9 @@ Detected npm scripts:
 
 - `npm run compile` - `tsc -p ./`
 - `npm run check` - `scripts/check-baseline.sh`
-- `npm run lint` - `eslint src --ext ts`
+- `npm run lint` - `eslint src --ext ts --max-warnings=0`
 - `npm run test` - `npm run compile && npm run check`
+- `npm run verify` - `npm run lint && npm test && npm audit --audit-level=high`
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
 
@@ -65,14 +66,17 @@ Detected npm scripts:
 Run the local gate before changing extension or webview behavior:
 
 ```bash
-npm test
+npm run verify
 npm run lint
+npm test
 npm audit --audit-level=high
 ```
 
-`npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
-baseline checks that the webview has a content security policy, nonce-scoped
-script execution, bounded message handling, and synchronized compiled output.
+`npm run verify` runs the zero-warning TypeScript lint gate, `npm test`, and
+the high-severity npm audit gate. `npm test` compiles TypeScript and runs
+`scripts/check-baseline.sh`. The source baseline checks that the webview has a
+content security policy, nonce-scoped script execution, bounded message
+handling, and synchronized compiled output.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 

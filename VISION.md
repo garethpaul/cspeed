@@ -29,7 +29,7 @@ Next priorities:
 Contribution rules:
 
 - One PR = one focused extension, webview, or documentation change.
-- Run `npm install` and `npm run compile` before pushing TypeScript changes.
+- Run `npm ci` and `npm run verify` before pushing TypeScript changes.
 - Do not add webview capabilities without documenting security impact.
 - Keep generated output in sync only if the repository continues to check it in.
 

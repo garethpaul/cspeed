@@ -8,6 +8,7 @@ SOURCE="$ROOT_DIR/src/extension.ts"
 OUTPUT="$ROOT_DIR/out/extension.js"
 README="$ROOT_DIR/README.md"
 PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-webview-baseline.md"
+VERIFY_PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-verify-gate.md"
 
 require_file() {
   path=$1
@@ -26,7 +27,8 @@ for path in \
   "src/extension.ts" \
   "out/extension.js" \
   "scripts/check-baseline.sh" \
-  "docs/plans/2026-06-08-cspeed-webview-baseline.md"; do
+  "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
+  "docs/plans/2026-06-08-cspeed-verify-gate.md"; do
   require_file "$path"
 done
 
@@ -37,6 +39,16 @@ fi
 
 if ! grep -Fq '"test": "npm run compile && npm run check"' "$PACKAGE_JSON"; then
   printf '%s\n' "package.json must expose the compile and baseline test gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq '"lint": "eslint src --ext ts --max-warnings=0"' "$PACKAGE_JSON"; then
+  printf '%s\n' "package.json must keep lint as a zero-warning TypeScript gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq '"verify": "npm run lint && npm test && npm audit --audit-level=high"' "$PACKAGE_JSON"; then
+  printf '%s\n' "package.json must expose the combined verify gate." >&2
   exit 1
 fi
 
@@ -100,8 +112,18 @@ if ! grep -Fq "npm test" "$README"; then
   exit 1
 fi
 
+if ! grep -Fq "npm run verify" "$README"; then
+  printf '%s\n' "README must document the combined verify gate." >&2
+  exit 1
+fi
+
 if ! grep -Fq "status: completed" "$PLAN"; then
   printf '%s\n' "Plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$VERIFY_PLAN"; then
+  printf '%s\n' "Verify plan must be marked completed." >&2
   exit 1
 fi
 

@@ -24,8 +24,9 @@
 	  "vscode:prepublish": "npm run compile",
 	  "compile": "tsc -p ./",
 	  "check": "scripts/check-baseline.sh",
-	  "lint": "eslint src --ext ts",
+	  "lint": "eslint src --ext ts --max-warnings=0",
 	  "test": "npm run compile && npm run check",
+	  "verify": "npm run lint && npm test && npm audit --audit-level=high",
 	  "watch": "tsc -watch -p ./"
 	},
 	"devDependencies": {

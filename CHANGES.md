@@ -8,3 +8,4 @@
   baseline.
 - Hardened the sidebar webview with a content security policy, nonce-scoped
   script, narrower local resource roots, and validated extension-host messages.
+- Added a combined `npm run verify` gate and made lint fail on warnings.
