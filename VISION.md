@@ -42,7 +42,7 @@ the webview handles meaningful user data.
 Messages from the webview should be validated before triggering extension-host
 behavior.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Remote script loading in the webview
 - Broad extension features before README and package metadata are aligned
