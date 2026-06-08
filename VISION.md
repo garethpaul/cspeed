@@ -1,5 +1,8 @@
 ## CSpeed Vision
 
+This document explains the current state and direction of the project.
+Project overview and developer docs: [`README.md`](README.md)
+
 CSpeed is a minimal VS Code extension sample that contributes a sidebar webview
 and sends messages from the webview back to the extension host.
 
