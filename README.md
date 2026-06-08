@@ -1,5 +1,8 @@
 # cspeed
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## Overview
 
 `garethpaul/cspeed` is a Node.js or JavaScript project. Basic wrapper for VSCode
@@ -81,4 +84,3 @@ Keep changes small and tied to the project that is already present in this repos
 Prior README summary:
 
 > Cat Coding — A Webview API Sample <!-- README-OVERVIEW-IMAGE --> Demonstrates VS Code's [webview API](https://code.visualstudio.com/api/extension-guides/webview). This includes: - Creating and showing a basic webview. - Dynamically updating a webview's content. - Loading local content in a webview. - Running scripts in a webview. - Sending message from an extension to a webview.
-
