@@ -5,7 +5,7 @@
 
 ## Overview
 
-`garethpaul/cspeed` is a Node.js or JavaScript project. Basic wrapper for VSCode
+`garethpaul/cspeed` is a minimal VS Code sidebar webview extension sample.
 
 This README is based on the checked-in source, manifests, scripts, and repository metadata on the `main` branch. The project language mix found during review was: JavaScript (2), TypeScript (1).
 
@@ -26,38 +26,53 @@ Additional scan context:
 - Source directories: .vscode, media, out, src
 - Dependency and build manifests: package-lock.json, package.json
 - Entry points or build surfaces: package.json
-- Test-looking files: no obvious test files detected
+- Verification gate: `npm test`
 
 ## Getting Started
 
 ### Prerequisites
 
 - Git
-- Node.js and npm
+- Node.js 20 or newer
+- npm
 
 ### Setup
 
 ```bash
 git clone https://github.com/garethpaul/cspeed.git
 cd cspeed
-npm install
+npm ci
 ```
 
 The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
 
 ## Running or Using the Project
 
-- Inspect `package.json` for available npm scripts before running the project.
+Open this repository in VS Code and run the extension host launch
+configuration to inspect the contributed sidebar webview.
 
 Detected npm scripts:
 
 - `npm run compile` - `tsc -p ./`
+- `npm run check` - `scripts/check-baseline.sh`
+- `npm run lint` - `eslint src --ext ts`
+- `npm run test` - `npm run compile && npm run check`
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
 
 ## Testing and Verification
 
-- No dedicated automated test command was identified from the checked-in files. Verify changes by running the relevant build or manually exercising the sample.
+Run the local gate before changing extension or webview behavior:
+
+```bash
+npm test
+npm run lint
+npm audit --audit-level=high
+```
+
+`npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
+baseline checks that the webview has a content security policy, nonce-scoped
+script execution, bounded message handling, and synchronized compiled output.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -74,6 +89,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
+- See `CHANGES.md` for maintenance history.
 
 ## Contributing
 
