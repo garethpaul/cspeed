@@ -98,9 +98,3 @@ When the required SDK or runtime is unavailable, use static checks and source re
 ## Contributing
 
 Keep changes small and tied to the project that is already present in this repository. For code changes, document the toolchain used, avoid committing generated dependency directories or local configuration, and update this README when setup or verification steps change.
-
-## Existing Project Notes
-
-Prior README summary:
-
-> Cat Coding — A Webview API Sample Demonstrates VS Code's [webview API](https://code.visualstudio.com/api/extension-guides/webview). This includes: - Creating and showing a basic webview. - Dynamically updating a webview's content. - Loading local content in a webview. - Running scripts in a webview. - Sending message from an extension to a webview.
