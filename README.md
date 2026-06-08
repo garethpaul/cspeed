@@ -1,5 +1,8 @@
 # Cat Coding — A Webview API Sample
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 Demonstrates VS Code's [webview API](https://code.visualstudio.com/api/extension-guides/webview). This includes:
 
 - Creating and showing a basic webview.
