@@ -39,7 +39,6 @@ Canonical security policy and reporting:
 
 - [`SECURITY.md`](SECURITY.md)
 
-
 VS Code webviews can run scripts. Changes should keep local resource roots
 limited, avoid loading remote scripts, and use a content security policy before
 the webview handles meaningful user data.
