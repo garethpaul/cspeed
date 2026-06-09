@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Added an explicit root `make build` gate for TypeScript compilation and wired
+  `make verify` through lint, test, build, and audit targets.
 - Normalized webview alert text before displaying VS Code notifications and
   rejected multiline alert payloads.
 - Switched the webview CSP nonce from `Math.random` to Node `crypto.randomBytes`

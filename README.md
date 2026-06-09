@@ -67,14 +67,16 @@ Run the local gate before changing extension or webview behavior:
 
 ```bash
 make check
+make build
 npm run verify
 npm run lint
 npm test
 npm audit --audit-level=high
 ```
 
-`make check` delegates to `npm run verify`, which runs the zero-warning
-TypeScript lint gate, `npm test`, and the high-severity npm audit gate.
+`make check` runs the root lint, test, build, and audit gates. `make build`
+runs `npm run compile` so the checked-in `out/` extension output stays
+reproducible from the TypeScript source.
 `npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, bounded message handling with non-empty normalized alert text,
@@ -98,9 +100,13 @@ When the required SDK or runtime is unavailable, use static checks and source re
   output synchronized with the TypeScript source.
 - Webview alert text is trimmed, bounded, and kept on one notification line
   before the extension host displays it.
+- Root `make build` runs the TypeScript compiler directly before audit-backed
+  verification.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for maintenance history.
+- See `docs/plans/2026-06-09-cspeed-make-build-gate.md` for the root build gate
+  baseline.
 
 ## Contributing
 

@@ -20,6 +20,7 @@ Priority:
 - Preserve the minimal sidebar webview contribution
 - Keep extension-to-webview messaging easy to inspect
 - Maintain TypeScript compilation through `npm run compile`
+- Keep root build verification tied to TypeScript compilation
 - Keep webview script permissions and local-resource roots explicit
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications

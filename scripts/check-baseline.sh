@@ -31,6 +31,7 @@ for path in \
   "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
   "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
   "docs/plans/2026-06-08-cspeed-verify-gate.md" \
+  "docs/plans/2026-06-09-cspeed-make-build-gate.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -57,6 +58,16 @@ fi
 
 if ! grep -Fq "check: verify" "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile must expose make check as the repository verification wrapper." >&2
+  exit 1
+fi
+
+if ! grep -Fq "build:" "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile must expose a build gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq "verify: lint test build audit" "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile verify must run lint, test, build, and audit gates." >&2
   exit 1
 fi
 
@@ -167,6 +178,11 @@ if ! grep -Fq "make check" "$README"; then
   exit 1
 fi
 
+if ! grep -Fq "make build" "$README"; then
+  printf '%s\n' "README must document the root make build gate." >&2
+  exit 1
+fi
+
 if ! grep -Fq "npm run verify" "$README"; then
   printf '%s\n' "README must document the combined verify gate." >&2
   exit 1
@@ -214,6 +230,16 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; then
   printf '%s\n' "Normalized webview alerts plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-make-build-gate.md"; then
+  printf '%s\n' "Make build gate plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-make-build-gate.md"; then
+  printf '%s\n' "Make build gate plan must record make check verification." >&2
   exit 1
 fi
 

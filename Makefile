@@ -1,4 +1,4 @@
-.PHONY: lint test audit verify check
+.PHONY: lint test build audit verify check
 
 NPM ?= npm
 
@@ -8,10 +8,12 @@ lint:
 test:
 	$(NPM) test
 
+build:
+	$(NPM) run compile
+
 audit:
 	$(NPM) audit --audit-level=high
 
-verify:
-	$(NPM) run verify
+verify: lint test build audit
 
 check: verify
