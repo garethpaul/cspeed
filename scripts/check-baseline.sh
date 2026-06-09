@@ -21,12 +21,14 @@ require_file() {
 for path in \
   ".gitignore" \
   "CHANGES.md" \
+  "Makefile" \
   "README.md" \
   "package.json" \
   "package-lock.json" \
   "src/extension.ts" \
   "out/extension.js" \
   "scripts/check-baseline.sh" \
+  "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
   "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
   "docs/plans/2026-06-08-cspeed-verify-gate.md"; do
   require_file "$path"
@@ -49,6 +51,11 @@ fi
 
 if ! grep -Fq '"verify": "npm run lint && npm test && npm audit --audit-level=high"' "$PACKAGE_JSON"; then
   printf '%s\n' "package.json must expose the combined verify gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq "check: verify" "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile must expose make check as the repository verification wrapper." >&2
   exit 1
 fi
 
@@ -117,6 +124,11 @@ if ! grep -Fq "npm test" "$README"; then
   exit 1
 fi
 
+if ! grep -Fq "make check" "$README"; then
+  printf '%s\n' "README must document the root make check gate." >&2
+  exit 1
+fi
+
 if ! grep -Fq "npm run verify" "$README"; then
   printf '%s\n' "README must document the combined verify gate." >&2
   exit 1
@@ -134,6 +146,11 @@ fi
 
 if ! grep -Fq "status: completed" "$VERIFY_PLAN"; then
   printf '%s\n' "Verify plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$ROOT_DIR/docs/plans/2026-06-08-cspeed-check-wrapper.md"; then
+  printf '%s\n' "Check wrapper plan must be marked completed." >&2
   exit 1
 fi
 

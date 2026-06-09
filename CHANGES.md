@@ -2,6 +2,7 @@
 
 ## 2026-06-08
 
+- Added a root `make check` wrapper for the existing npm verification gate.
 - Rejected empty or whitespace-only webview alert messages before showing VS
   Code notifications.
 - Added a compile-backed `npm test` gate and a source baseline check for the VS

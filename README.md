@@ -26,7 +26,7 @@ Additional scan context:
 - Source directories: .vscode, media, out, src
 - Dependency and build manifests: package-lock.json, package.json
 - Entry points or build surfaces: package.json
-- Verification gate: `npm test`
+- Verification gate: `make check`
 
 ## Getting Started
 
@@ -66,17 +66,19 @@ Detected npm scripts:
 Run the local gate before changing extension or webview behavior:
 
 ```bash
+make check
 npm run verify
 npm run lint
 npm test
 npm audit --audit-level=high
 ```
 
-`npm run verify` runs the zero-warning TypeScript lint gate, `npm test`, and
-the high-severity npm audit gate. `npm test` compiles TypeScript and runs
-`scripts/check-baseline.sh`. The source baseline checks that the webview has a
-content security policy, nonce-scoped script execution, bounded message
-handling with non-empty alert text, and synchronized compiled output.
+`make check` delegates to `npm run verify`, which runs the zero-warning
+TypeScript lint gate, `npm test`, and the high-severity npm audit gate.
+`npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
+baseline checks that the webview has a content security policy, nonce-scoped
+script execution, bounded message handling with non-empty alert text, and
+synchronized compiled output.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
