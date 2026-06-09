@@ -79,11 +79,12 @@ runs `npm run compile` so the checked-in `out/` extension output stays
 reproducible from the TypeScript source.
 `npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
-script execution, bounded message handling with non-empty normalized alert text,
-plain non-array objects with own alert message properties, single-line alert
-notifications, and synchronized compiled output. The script nonce is generated
-with Node crypto instead of `Math.random`, and the webview script is loaded from
-`media/main.js` through a scoped VS Code webview URI.
+script execution, base URI and form submissions disabled, bounded message
+handling with non-empty normalized alert text, own alert message properties,
+plain non-array objects, single-line alert notifications, and synchronized
+compiled output. The script nonce is generated with Node crypto instead of
+`Math.random`, and the webview script is loaded from `media/main.js` through a
+scoped VS Code webview URI.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -100,6 +101,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - The webview uses a crypto-generated CSP nonce and keeps checked-in compiled
   output synchronized with the TypeScript source.
+- The webview CSP keeps base URI and form submissions disabled in addition to
+  denying default resource loads.
 - The sidebar webview script is loaded from `media/main.js` under the same
   nonce-scoped content security policy.
 - Webview alert text is trimmed, bounded, and kept on one notification line
@@ -124,6 +127,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   webview alert plain-object validation baseline.
 - See `docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md` for the local
   editor metadata ignore baseline.
+- See `docs/plans/2026-06-09-cspeed-webview-csp-navigation.md` for webview CSP
+  navigation restrictions.
 
 ## Contributing
 

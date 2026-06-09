@@ -14,6 +14,7 @@ MEDIA_SCRIPT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-media-script-baseline.
 MESSAGE_OWN_PROPERTY_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-own-properties.md"
 EDITOR_METADATA_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md"
 ALERT_PLAIN_OBJECT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md"
+CSP_NAVIGATION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-webview-csp-navigation.md"
 
 require_file() {
   path=$1
@@ -42,6 +43,7 @@ for path in \
   "docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md" \
   "docs/plans/2026-06-09-cspeed-alert-own-properties.md" \
   "docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md" \
+  "docs/plans/2026-06-09-cspeed-webview-csp-navigation.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -103,6 +105,12 @@ fi
 
 if ! grep -Fq "script-src 'nonce-" "$SOURCE"; then
   printf '%s\n' "Webview scripts must be constrained by a nonce." >&2
+  exit 1
+fi
+
+if ! grep -Fq "base-uri 'none'" "$SOURCE" ||
+   ! grep -Fq "form-action 'none'" "$SOURCE"; then
+  printf '%s\n' "Webview CSP must disable base URI and form submissions explicitly." >&2
   exit 1
 fi
 
@@ -195,6 +203,12 @@ if ! grep -Fq "Content-Security-Policy" "$OUTPUT"; then
   exit 1
 fi
 
+if ! grep -Fq "base-uri 'none'" "$OUTPUT" ||
+   ! grep -Fq "form-action 'none'" "$OUTPUT"; then
+  printf '%s\n' "Compiled output must stay synchronized with CSP navigation restrictions." >&2
+  exit 1
+fi
+
 if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'))" "$OUTPUT" ||
    ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the external media script source." >&2
@@ -269,6 +283,11 @@ fi
 
 if ! grep -Fq "crypto-generated CSP nonce" "$README"; then
   printf '%s\n' "README must document the crypto-generated CSP nonce baseline." >&2
+  exit 1
+fi
+
+if ! grep -Fq "base URI and form submissions disabled" "$README"; then
+  printf '%s\n' "README must document CSP navigation restrictions." >&2
   exit 1
 fi
 
@@ -359,6 +378,16 @@ fi
 
 if ! grep -Fq "make check" "$ALERT_PLAIN_OBJECT_PLAN"; then
   printf '%s\n' "Alert plain-object plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$CSP_NAVIGATION_PLAN"; then
+  printf '%s\n' "CSP navigation restriction plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$CSP_NAVIGATION_PLAN"; then
+  printf '%s\n' "CSP navigation restriction plan must record make check verification." >&2
   exit 1
 fi
 

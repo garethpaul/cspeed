@@ -29,6 +29,8 @@ class SidebarProvider {
         const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
         const contentSecurityPolicy = [
             "default-src 'none'",
+            "base-uri 'none'",
+            "form-action 'none'",
             `img-src ${webview.cspSource}`,
             `style-src ${webview.cspSource}`,
             `script-src 'nonce-${nonce}'`

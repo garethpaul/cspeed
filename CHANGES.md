@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Added explicit webview CSP directives to disable base URI changes and form
+  submissions.
 - Required webview alert messages to be plain non-array objects before field
   validation.
 - Removed tracked local VS Code workspace metadata and added a baseline guard
