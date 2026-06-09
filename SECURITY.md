@@ -30,6 +30,8 @@ Helpful reports include:
 - Review found mobile permission or privacy-sensitive data handling; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: package.json, package-lock.json. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
+- Local `.vscode/` workspace metadata should stay untracked so editor launch
+  settings and recommendations remain machine-local.
 
 ## Service and API Notes
 

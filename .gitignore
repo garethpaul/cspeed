@@ -3,6 +3,7 @@ npm-debug.log
 Thumbs.db
 node_modules/
 **/node_modules/
+.vscode/
 */out/
 */.vs/
 .vscode-test/

@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Removed tracked local VS Code workspace metadata and added a baseline guard
+  for the `.vscode/` ignore rule.
 - Required webview alert messages to provide own `command` and `text`
   properties before the extension host reads them.
 - Loaded the sidebar webview button handler from `media/main.js` through a

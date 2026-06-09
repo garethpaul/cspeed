@@ -13,7 +13,6 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 
 - `README.md` - project overview and local usage notes
 - `package.json` - JavaScript dependency and script metadata
-- `.vscode` - source or example code
 - `media` - source or example code
 - `out` - source or example code
 - `package-lock.json` - JavaScript dependency and script metadata
@@ -23,7 +22,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 
 Additional scan context:
 
-- Source directories: .vscode, media, out, src
+- Source directories: media, out, src
 - Dependency and build manifests: package-lock.json, package.json
 - Entry points or build surfaces: package.json
 - Verification gate: `make check`
@@ -48,8 +47,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Running or Using the Project
 
-Open this repository in VS Code and run the extension host launch
-configuration to inspect the contributed sidebar webview.
+Open this repository in VS Code, create a local extension-host launch
+configuration if needed, and run the sidebar webview extension against the
+compiled `out/` output.
 
 Detected npm scripts:
 
@@ -93,8 +93,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Security and Privacy Notes
 
-- Review changes touching network requests, sockets, or service endpoints; examples from the scan include .vscode/extensions.json, .vscode/launch.json, .vscode/tasks.json.
-- Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include .vscode/tasks.json, media/main.js.
+- Review changes touching network requests, sockets, or service endpoints; examples from the scan include package.json, src/extension.ts, media/main.js.
+- Review changes touching file, media, JSON, XML, CSV, OCR, or data parsing; examples from the scan include media/main.js, package.json, src/extension.ts.
 
 ## Maintenance Notes
 
@@ -108,6 +108,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   extension host reads or displays them.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
   verification.
+- Local `.vscode/` workspace files are ignored so editor launch settings and
+  recommendations stay machine-local.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for maintenance history.
@@ -117,6 +119,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   webview script baseline.
 - See `docs/plans/2026-06-09-cspeed-alert-own-properties.md` for the webview
   alert own-property validation baseline.
+- See `docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md` for the local
+  editor metadata ignore baseline.
 
 ## Contributing
 

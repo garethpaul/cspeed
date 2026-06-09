@@ -26,6 +26,7 @@ Priority:
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications
 - Require owned alert message fields before the extension host reads them
+- Keep local VS Code workspace metadata out of the shared project baseline
 
 Next priorities:
 

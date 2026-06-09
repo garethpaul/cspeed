@@ -12,6 +12,7 @@ PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-webview-baseline.md"
 VERIFY_PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-verify-gate.md"
 MEDIA_SCRIPT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-media-script-baseline.md"
 MESSAGE_OWN_PROPERTY_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-own-properties.md"
+EDITOR_METADATA_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md"
 
 require_file() {
   path=$1
@@ -38,6 +39,7 @@ for path in \
   "docs/plans/2026-06-09-cspeed-make-build-gate.md" \
   "docs/plans/2026-06-09-cspeed-media-script-baseline.md" \
   "docs/plans/2026-06-09-cspeed-alert-own-properties.md" \
+  "docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -211,6 +213,17 @@ if ! grep -Fq "node_modules/" "$ROOT_DIR/.gitignore"; then
   exit 1
 fi
 
+if ! grep -Fq ".vscode/" "$ROOT_DIR/.gitignore"; then
+  printf '%s\n' ".gitignore must exclude local VS Code workspace metadata." >&2
+  exit 1
+fi
+
+tracked_editor_files=$(git -C "$ROOT_DIR" ls-files -- .vscode)
+if [ -n "$tracked_editor_files" ]; then
+  printf '%s\n' "VS Code workspace metadata must not be tracked: $tracked_editor_files" >&2
+  exit 1
+fi
+
 if ! grep -Fq "npm test" "$README"; then
   printf '%s\n' "README must document the npm test gate." >&2
   exit 1
@@ -313,6 +326,16 @@ fi
 
 if ! grep -Fq "make check" "$MESSAGE_OWN_PROPERTY_PLAN"; then
   printf '%s\n' "Alert own-property plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$EDITOR_METADATA_PLAN"; then
+  printf '%s\n' "Editor metadata ignore plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$EDITOR_METADATA_PLAN"; then
+  printf '%s\n' "Editor metadata ignore plan must record make check verification." >&2
   exit 1
 fi
 
