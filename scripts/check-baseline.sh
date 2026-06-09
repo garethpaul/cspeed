@@ -6,9 +6,11 @@ PACKAGE_JSON="$ROOT_DIR/package.json"
 PACKAGE_LOCK="$ROOT_DIR/package-lock.json"
 SOURCE="$ROOT_DIR/src/extension.ts"
 OUTPUT="$ROOT_DIR/out/extension.js"
+MEDIA_SCRIPT="$ROOT_DIR/media/main.js"
 README="$ROOT_DIR/README.md"
 PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-webview-baseline.md"
 VERIFY_PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-verify-gate.md"
+MEDIA_SCRIPT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-media-script-baseline.md"
 
 require_file() {
   path=$1
@@ -25,6 +27,7 @@ for path in \
   "README.md" \
   "package.json" \
   "package-lock.json" \
+  "media/main.js" \
   "src/extension.ts" \
   "out/extension.js" \
   "scripts/check-baseline.sh" \
@@ -32,6 +35,7 @@ for path in \
   "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
   "docs/plans/2026-06-08-cspeed-verify-gate.md" \
   "docs/plans/2026-06-09-cspeed-make-build-gate.md" \
+  "docs/plans/2026-06-09-cspeed-media-script-baseline.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -111,8 +115,31 @@ if grep -Fq "onclick=" "$SOURCE"; then
   exit 1
 fi
 
+if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'))" "$SOURCE"; then
+  printf '%s\n' "Webview HTML must load its script through a scoped media URI." >&2
+  exit 1
+fi
+
+if ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$SOURCE"; then
+  printf '%s\n' "Webview script tags must keep the nonce on the external media script." >&2
+  exit 1
+fi
+
 if ! grep -Fq "localResourceRoots: [vscode.Uri.joinPath(this._extensionUri, 'media')]" "$SOURCE"; then
   printf '%s\n' "Webview local resource roots must be limited to media/." >&2
+  exit 1
+fi
+
+if grep -Fq "lines-of-code-counter" "$MEDIA_SCRIPT" || grep -Fq "setInterval(" "$MEDIA_SCRIPT" ||
+  grep -Fq "Math.random()" "$MEDIA_SCRIPT"; then
+  printf '%s\n' "Webview media script must not keep stale Cat Coding timer behavior." >&2
+  exit 1
+fi
+
+if ! grep -Fq "document.getElementById('send-message')" "$MEDIA_SCRIPT" ||
+  ! grep -Fq "vscode.postMessage({" "$MEDIA_SCRIPT" ||
+  ! grep -Fq "text: 'Hello from the webview!'" "$MEDIA_SCRIPT"; then
+  printf '%s\n' "Webview media script must own the sidebar button message handler." >&2
   exit 1
 fi
 
@@ -148,6 +175,12 @@ fi
 
 if ! grep -Fq "Content-Security-Policy" "$OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the CSP source." >&2
+  exit 1
+fi
+
+if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'))" "$OUTPUT" ||
+   ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$OUTPUT"; then
+  printf '%s\n' "Compiled output must stay synchronized with the external media script source." >&2
   exit 1
 fi
 
@@ -198,6 +231,11 @@ if ! grep -Fq "crypto-generated CSP nonce" "$README"; then
   exit 1
 fi
 
+if ! grep -Fq "webview script is loaded from \`media/main.js\`" "$README"; then
+  printf '%s\n' "README must document the external media script baseline." >&2
+  exit 1
+fi
+
 if ! grep -Fq "status: completed" "$PLAN"; then
   printf '%s\n' "Plan must be marked completed." >&2
   exit 1
@@ -240,6 +278,16 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-make-build-gate.md"; then
   printf '%s\n' "Make build gate plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$MEDIA_SCRIPT_PLAN"; then
+  printf '%s\n' "Media script baseline plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$MEDIA_SCRIPT_PLAN"; then
+  printf '%s\n' "Media script baseline plan must record make check verification." >&2
   exit 1
 fi
 

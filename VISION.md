@@ -22,6 +22,7 @@ Priority:
 - Maintain TypeScript compilation through `npm run compile`
 - Keep root build verification tied to TypeScript compilation
 - Keep webview script permissions and local-resource roots explicit
+- Keep the webview button handler in the checked media script
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications
 

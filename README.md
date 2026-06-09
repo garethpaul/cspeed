@@ -81,7 +81,8 @@ reproducible from the TypeScript source.
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, bounded message handling with non-empty normalized alert text,
 single-line alert notifications, and synchronized compiled output. The script
-nonce is generated with Node crypto instead of `Math.random`.
+nonce is generated with Node crypto instead of `Math.random`, and the webview
+script is loaded from `media/main.js` through a scoped VS Code webview URI.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -98,6 +99,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - The webview uses a crypto-generated CSP nonce and keeps checked-in compiled
   output synchronized with the TypeScript source.
+- The sidebar webview script is loaded from `media/main.js` under the same
+  nonce-scoped content security policy.
 - Webview alert text is trimmed, bounded, and kept on one notification line
   before the extension host displays it.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
@@ -107,6 +110,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `CHANGES.md` for maintenance history.
 - See `docs/plans/2026-06-09-cspeed-make-build-gate.md` for the root build gate
   baseline.
+- See `docs/plans/2026-06-09-cspeed-media-script-baseline.md` for the external
+  webview script baseline.
 
 ## Contributing
 

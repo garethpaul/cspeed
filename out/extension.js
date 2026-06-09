@@ -26,6 +26,7 @@ class SidebarProvider {
     }
     _getHtmlForWebview(webview) {
         const nonce = getNonce();
+        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
         const contentSecurityPolicy = [
             "default-src 'none'",
             `img-src ${webview.cspSource}`,
@@ -43,16 +44,7 @@ class SidebarProvider {
 <body>
 	<h1>Hello from the sidebar!</h1>
 	<button id="send-message" type="button">Send Message</button>
-	<script nonce="${nonce}">
-		const vscode = acquireVsCodeApi();
-		const button = document.getElementById('send-message');
-		button.addEventListener('click', () => {
-			vscode.postMessage({
-				command: 'alert',
-				text: 'Hello from the webview!'
-			});
-		});
-	</script>
+	<script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
     }

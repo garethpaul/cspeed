@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Loaded the sidebar webview button handler from `media/main.js` through a
+  nonce-scoped VS Code webview URI and removed stale timer script behavior.
 - Added an explicit root `make build` gate for TypeScript compilation and wired
   `make verify` through lint, test, build, and audit targets.
 - Normalized webview alert text before displaying VS Code notifications and
