@@ -97,6 +97,11 @@ if ! grep -Fq "candidate.text.length <= 200" "$SOURCE"; then
   exit 1
 fi
 
+if ! grep -Fq "candidate.text.trim().length > 0" "$SOURCE"; then
+  printf '%s\n' "Webview alert messages must not be empty after trimming." >&2
+  exit 1
+fi
+
 if ! grep -Fq "Content-Security-Policy" "$OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the CSP source." >&2
   exit 1
@@ -114,6 +119,11 @@ fi
 
 if ! grep -Fq "npm run verify" "$README"; then
   printf '%s\n' "README must document the combined verify gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq "non-empty alert text" "$README"; then
+  printf '%s\n' "README must document non-empty webview alert validation." >&2
   exit 1
 fi
 

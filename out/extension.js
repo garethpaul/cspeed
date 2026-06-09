@@ -62,6 +62,7 @@ function isAlertMessage(message) {
     const candidate = message;
     return candidate.command === 'alert' &&
         typeof candidate.text === 'string' &&
+        candidate.text.trim().length > 0 &&
         candidate.text.length <= 200;
 }
 function getNonce() {

@@ -72,6 +72,7 @@ function isAlertMessage(message: unknown): message is { command: 'alert'; text: 
 	const candidate = message as { command?: unknown; text?: unknown };
 	return candidate.command === 'alert' &&
 		typeof candidate.text === 'string' &&
+		candidate.text.trim().length > 0 &&
 		candidate.text.length <= 200;
 }
 

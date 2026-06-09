@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Rejected empty or whitespace-only webview alert messages before showing VS
+  Code notifications.
 - Added a compile-backed `npm test` gate and a source baseline check for the VS
   Code webview sample.
 - Aligned `package.json` with the checked-in TypeScript and ESLint lockfile

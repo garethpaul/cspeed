@@ -76,7 +76,7 @@ npm audit --audit-level=high
 the high-severity npm audit gate. `npm test` compiles TypeScript and runs
 `scripts/check-baseline.sh`. The source baseline checks that the webview has a
 content security policy, nonce-scoped script execution, bounded message
-handling, and synchronized compiled output.
+handling with non-empty alert text, and synchronized compiled output.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
