@@ -78,7 +78,8 @@ TypeScript lint gate, `npm test`, and the high-severity npm audit gate.
 `npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, bounded message handling with non-empty alert text, and
-synchronized compiled output.
+synchronized compiled output. The script nonce is generated with Node crypto
+instead of `Math.random`.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -93,6 +94,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
+- The webview uses a crypto-generated CSP nonce and keeps checked-in compiled
+  output synchronized with the TypeScript source.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for maintenance history.

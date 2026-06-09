@@ -84,6 +84,16 @@ if ! grep -Fq "script-src 'nonce-" "$SOURCE"; then
   exit 1
 fi
 
+if ! grep -Fq "randomBytes(16).toString('base64')" "$SOURCE"; then
+  printf '%s\n' "Webview CSP nonce must be generated with Node crypto." >&2
+  exit 1
+fi
+
+if grep -Fq "Math.random()" "$SOURCE"; then
+  printf '%s\n' "Webview CSP nonce must not use Math.random." >&2
+  exit 1
+fi
+
 if grep -Fq "onclick=" "$SOURCE"; then
   printf '%s\n' "Webview HTML must not use inline event handlers." >&2
   exit 1
@@ -114,6 +124,11 @@ if ! grep -Fq "Content-Security-Policy" "$OUTPUT"; then
   exit 1
 fi
 
+if ! grep -Fq 'require("crypto")' "$OUTPUT" || ! grep -Fq "crypto_1.randomBytes)(16).toString('base64')" "$OUTPUT"; then
+  printf '%s\n' "Compiled output must stay synchronized with the crypto nonce source." >&2
+  exit 1
+fi
+
 if ! grep -Fq "node_modules/" "$ROOT_DIR/.gitignore"; then
   printf '%s\n' ".gitignore must exclude node_modules." >&2
   exit 1
@@ -139,6 +154,11 @@ if ! grep -Fq "non-empty alert text" "$README"; then
   exit 1
 fi
 
+if ! grep -Fq "crypto-generated CSP nonce" "$README"; then
+  printf '%s\n' "README must document the crypto-generated CSP nonce baseline." >&2
+  exit 1
+fi
+
 if ! grep -Fq "status: completed" "$PLAN"; then
   printf '%s\n' "Plan must be marked completed." >&2
   exit 1
@@ -151,6 +171,16 @@ fi
 
 if ! grep -Fq "status: completed" "$ROOT_DIR/docs/plans/2026-06-08-cspeed-check-wrapper.md"; then
   printf '%s\n' "Check wrapper plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-crypto-webview-nonce.md"; then
+  printf '%s\n' "Crypto webview nonce plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-crypto-webview-nonce.md"; then
+  printf '%s\n' "Crypto webview nonce plan must record make check verification." >&2
   exit 1
 fi
 

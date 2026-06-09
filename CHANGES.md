@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-09
+
+- Switched the webview CSP nonce from `Math.random` to Node `crypto.randomBytes`
+  and guarded the compiled output sync.
+
 ## 2026-06-08
 
 - Added a root `make check` wrapper for the existing npm verification gate.

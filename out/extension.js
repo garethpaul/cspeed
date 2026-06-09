@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
+const crypto_1 = require("crypto");
 const vscode = require("vscode");
 function activate(context) {
     const provider = new SidebarProvider(context.extensionUri);
@@ -66,11 +67,6 @@ function isAlertMessage(message) {
         candidate.text.length <= 200;
 }
 function getNonce() {
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let text = '';
-    for (let i = 0; i < 32; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
+    return (0, crypto_1.randomBytes)(16).toString('base64');
 }
 //# sourceMappingURL=extension.js.map

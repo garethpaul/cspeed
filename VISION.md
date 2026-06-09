@@ -21,6 +21,7 @@ Priority:
 - Keep extension-to-webview messaging easy to inspect
 - Maintain TypeScript compilation through `npm run compile`
 - Keep webview script permissions and local-resource roots explicit
+- Generate webview CSP nonces with Node crypto rather than `Math.random`
 
 Next priorities:
 
