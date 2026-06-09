@@ -80,9 +80,10 @@ reproducible from the TypeScript source.
 `npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, bounded message handling with non-empty normalized alert text,
-single-line alert notifications, and synchronized compiled output. The script
-nonce is generated with Node crypto instead of `Math.random`, and the webview
-script is loaded from `media/main.js` through a scoped VS Code webview URI.
+own alert message properties, single-line alert notifications, and synchronized
+compiled output. The script nonce is generated with Node crypto instead of
+`Math.random`, and the webview script is loaded from `media/main.js` through a
+scoped VS Code webview URI.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -103,6 +104,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   nonce-scoped content security policy.
 - Webview alert text is trimmed, bounded, and kept on one notification line
   before the extension host displays it.
+- Alert messages must provide own `command` and `text` properties before the
+  extension host reads or displays them.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
   verification.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
@@ -112,6 +115,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   baseline.
 - See `docs/plans/2026-06-09-cspeed-media-script-baseline.md` for the external
   webview script baseline.
+- See `docs/plans/2026-06-09-cspeed-alert-own-properties.md` for the webview
+  alert own-property validation baseline.
 
 ## Contributing
 

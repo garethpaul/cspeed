@@ -25,6 +25,7 @@ Priority:
 - Keep the webview button handler in the checked media script
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications
+- Require owned alert message fields before the extension host reads them
 
 Next priorities:
 
@@ -52,7 +53,8 @@ the webview handles meaningful user data.
 
 Messages from the webview should be validated before triggering extension-host
 behavior. Notification text should be trimmed, bounded, and kept to a single
-line before display.
+line before display. Alert payloads should provide owned fields rather than
+inherited properties.
 
 ## What We Will Not Merge (For Now)
 

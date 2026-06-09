@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Required webview alert messages to provide own `command` and `text`
+  properties before the extension host reads them.
 - Loaded the sidebar webview button handler from `media/main.js` through a
   nonce-scoped VS Code webview URI and removed stale timer script behavior.
 - Added an explicit root `make build` gate for TypeScript compilation and wired

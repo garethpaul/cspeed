@@ -54,6 +54,10 @@ function parseAlertMessage(message) {
         return undefined;
     }
     const candidate = message;
+    if (!Object.prototype.hasOwnProperty.call(candidate, 'command') ||
+        !Object.prototype.hasOwnProperty.call(candidate, 'text')) {
+        return undefined;
+    }
     if (candidate.command !== 'alert' || typeof candidate.text !== 'string') {
         return undefined;
     }
