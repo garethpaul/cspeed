@@ -24,8 +24,9 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage(message => {
-			if (isAlertMessage(message)) {
-				vscode.window.showInformationMessage(message.text);
+			const alert = parseAlertMessage(message);
+			if (alert) {
+				vscode.window.showInformationMessage(alert.text);
 			}
 		});
 	}
@@ -65,16 +66,27 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 	}
 }
 
-function isAlertMessage(message: unknown): message is { command: 'alert'; text: string } {
+interface AlertMessage {
+	command: 'alert';
+	text: string;
+}
+
+function parseAlertMessage(message: unknown): AlertMessage | undefined {
 	if (!message || typeof message !== 'object') {
-		return false;
+		return undefined;
 	}
 
 	const candidate = message as { command?: unknown; text?: unknown };
-	return candidate.command === 'alert' &&
-		typeof candidate.text === 'string' &&
-		candidate.text.trim().length > 0 &&
-		candidate.text.length <= 200;
+	if (candidate.command !== 'alert' || typeof candidate.text !== 'string') {
+		return undefined;
+	}
+
+	const text = candidate.text.trim();
+	if (text.length === 0 || text.length > 200 || /[\r\n]/.test(text)) {
+		return undefined;
+	}
+
+	return { command: 'alert', text };
 }
 
 function getNonce(): string {

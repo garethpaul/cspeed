@@ -18,8 +18,9 @@ class SidebarProvider {
         };
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
         webviewView.webview.onDidReceiveMessage(message => {
-            if (isAlertMessage(message)) {
-                vscode.window.showInformationMessage(message.text);
+            const alert = parseAlertMessage(message);
+            if (alert) {
+                vscode.window.showInformationMessage(alert.text);
             }
         });
     }
@@ -56,15 +57,19 @@ class SidebarProvider {
 </html>`;
     }
 }
-function isAlertMessage(message) {
+function parseAlertMessage(message) {
     if (!message || typeof message !== 'object') {
-        return false;
+        return undefined;
     }
     const candidate = message;
-    return candidate.command === 'alert' &&
-        typeof candidate.text === 'string' &&
-        candidate.text.trim().length > 0 &&
-        candidate.text.length <= 200;
+    if (candidate.command !== 'alert' || typeof candidate.text !== 'string') {
+        return undefined;
+    }
+    const text = candidate.text.trim();
+    if (text.length === 0 || text.length > 200 || /[\r\n]/.test(text)) {
+        return undefined;
+    }
+    return { command: 'alert', text };
 }
 function getNonce() {
     return (0, crypto_1.randomBytes)(16).toString('base64');

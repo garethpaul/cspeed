@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Normalized webview alert text before displaying VS Code notifications and
+  rejected multiline alert payloads.
 - Switched the webview CSP nonce from `Math.random` to Node `crypto.randomBytes`
   and guarded the compiled output sync.
 

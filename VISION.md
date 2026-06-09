@@ -22,6 +22,7 @@ Priority:
 - Maintain TypeScript compilation through `npm run compile`
 - Keep webview script permissions and local-resource roots explicit
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
+- Normalize webview alert text before displaying VS Code notifications
 
 Next priorities:
 
@@ -48,7 +49,8 @@ limited, avoid loading remote scripts, and use a content security policy before
 the webview handles meaningful user data.
 
 Messages from the webview should be validated before triggering extension-host
-behavior.
+behavior. Notification text should be trimmed, bounded, and kept to a single
+line before display.
 
 ## What We Will Not Merge (For Now)
 

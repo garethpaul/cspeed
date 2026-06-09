@@ -30,7 +30,8 @@ for path in \
   "scripts/check-baseline.sh" \
   "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
   "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
-  "docs/plans/2026-06-08-cspeed-verify-gate.md"; do
+  "docs/plans/2026-06-08-cspeed-verify-gate.md" \
+  "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
 
@@ -104,23 +105,45 @@ if ! grep -Fq "localResourceRoots: [vscode.Uri.joinPath(this._extensionUri, 'med
   exit 1
 fi
 
-if ! grep -Fq "function isAlertMessage(message: unknown)" "$SOURCE"; then
-  printf '%s\n' "Extension host must validate webview messages before handling them." >&2
-  exit 1
+if ! grep -Fq "function parseAlertMessage(message: unknown)" "$SOURCE"; then
+	printf '%s\n' "Extension host must validate webview messages before handling them." >&2
+	exit 1
 fi
 
-if ! grep -Fq "candidate.text.length <= 200" "$SOURCE"; then
-  printf '%s\n' "Webview alert messages must have a bounded text length." >&2
-  exit 1
+if ! grep -Fq "const text = candidate.text.trim()" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must be trimmed before display." >&2
+	exit 1
 fi
 
-if ! grep -Fq "candidate.text.trim().length > 0" "$SOURCE"; then
-  printf '%s\n' "Webview alert messages must not be empty after trimming." >&2
-  exit 1
+if ! grep -Fq "text.length === 0 || text.length > 200" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must have a bounded normalized text length." >&2
+	exit 1
+fi
+
+if ! grep -Fq "/[\r\n]/.test(text)" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must stay on one notification line." >&2
+	exit 1
+fi
+
+if ! grep -Fq "return { command: 'alert', text }" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must return normalized text for display." >&2
+	exit 1
+fi
+
+if ! grep -Fq "text.length === 0" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must not be empty after trimming." >&2
+	exit 1
 fi
 
 if ! grep -Fq "Content-Security-Policy" "$OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the CSP source." >&2
+  exit 1
+fi
+
+if ! grep -Fq "function parseAlertMessage(message)" "$OUTPUT" ||
+   ! grep -Fq "const text = candidate.text.trim()" "$OUTPUT" ||
+   ! grep -Fq "/[\r\n]/.test(text)" "$OUTPUT"; then
+  printf '%s\n' "Compiled output must stay synchronized with normalized alert parsing." >&2
   exit 1
 fi
 
@@ -149,7 +172,7 @@ if ! grep -Fq "npm run verify" "$README"; then
   exit 1
 fi
 
-if ! grep -Fq "non-empty alert text" "$README"; then
+if ! grep -Fq "non-empty normalized alert text" "$README"; then
   printf '%s\n' "README must document non-empty webview alert validation." >&2
   exit 1
 fi
@@ -181,6 +204,16 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-crypto-webview-nonce.md"; then
   printf '%s\n' "Crypto webview nonce plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; then
+  printf '%s\n' "Normalized webview alerts plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ROOT_DIR/docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; then
+  printf '%s\n' "Normalized webview alerts plan must record make check verification." >&2
   exit 1
 fi
 
