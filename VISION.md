@@ -26,6 +26,7 @@ Priority:
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications
 - Require owned alert message fields before the extension host reads them
+- Reject array alert payloads before field validation
 - Keep local VS Code workspace metadata out of the shared project baseline
 
 Next priorities:
@@ -55,7 +56,7 @@ the webview handles meaningful user data.
 Messages from the webview should be validated before triggering extension-host
 behavior. Notification text should be trimmed, bounded, and kept to a single
 line before display. Alert payloads should provide owned fields rather than
-inherited properties.
+inherited properties, and array payloads should not pass object validation.
 
 ## What We Will Not Merge (For Now)
 

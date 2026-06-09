@@ -64,7 +64,7 @@ interface AlertMessage {
 }
 
 function parseAlertMessage(message: unknown): AlertMessage | undefined {
-	if (!message || typeof message !== 'object') {
+	if (!message || typeof message !== 'object' || Array.isArray(message)) {
 		return undefined;
 	}
 

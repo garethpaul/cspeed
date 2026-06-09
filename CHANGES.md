@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Required webview alert messages to be plain non-array objects before field
+  validation.
 - Removed tracked local VS Code workspace metadata and added a baseline guard
   for the `.vscode/` ignore rule.
 - Required webview alert messages to provide own `command` and `text`

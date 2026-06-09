@@ -13,6 +13,7 @@ VERIFY_PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-verify-gate.md"
 MEDIA_SCRIPT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-media-script-baseline.md"
 MESSAGE_OWN_PROPERTY_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-own-properties.md"
 EDITOR_METADATA_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md"
+ALERT_PLAIN_OBJECT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md"
 
 require_file() {
   path=$1
@@ -38,6 +39,7 @@ for path in \
   "docs/plans/2026-06-08-cspeed-verify-gate.md" \
   "docs/plans/2026-06-09-cspeed-make-build-gate.md" \
   "docs/plans/2026-06-09-cspeed-media-script-baseline.md" \
+  "docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md" \
   "docs/plans/2026-06-09-cspeed-alert-own-properties.md" \
   "docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
@@ -152,6 +154,11 @@ if ! grep -Fq "function parseAlertMessage(message: unknown)" "$SOURCE"; then
 	exit 1
 fi
 
+if ! grep -Fq "Array.isArray(message)" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must reject array payloads before field validation." >&2
+	exit 1
+fi
+
 if ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$SOURCE" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$SOURCE"; then
 	printf '%s\n' "Webview alert messages must require own command and text properties." >&2
@@ -195,6 +202,7 @@ if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'med
 fi
 
 if ! grep -Fq "function parseAlertMessage(message)" "$OUTPUT" ||
+   ! grep -Fq "Array.isArray(message)" "$OUTPUT" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$OUTPUT" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$OUTPUT" ||
    ! grep -Fq "const text = candidate.text.trim()" "$OUTPUT" ||
@@ -251,6 +259,11 @@ fi
 
 if ! grep -Fq "own alert message properties" "$README"; then
   printf '%s\n' "README must document own-property webview message validation." >&2
+  exit 1
+fi
+
+if ! grep -Fq "plain non-array objects" "$README"; then
+  printf '%s\n' "README must document plain-object webview message validation." >&2
   exit 1
 fi
 
@@ -336,6 +349,16 @@ fi
 
 if ! grep -Fq "make check" "$EDITOR_METADATA_PLAN"; then
   printf '%s\n' "Editor metadata ignore plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$ALERT_PLAIN_OBJECT_PLAN"; then
+  printf '%s\n' "Alert plain-object plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ALERT_PLAIN_OBJECT_PLAN"; then
+  printf '%s\n' "Alert plain-object plan must record make check verification." >&2
   exit 1
 fi
 

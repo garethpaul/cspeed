@@ -50,7 +50,7 @@ class SidebarProvider {
     }
 }
 function parseAlertMessage(message) {
-    if (!message || typeof message !== 'object') {
+    if (!message || typeof message !== 'object' || Array.isArray(message)) {
         return undefined;
     }
     const candidate = message;
