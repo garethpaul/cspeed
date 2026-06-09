@@ -55,6 +55,10 @@ function parseAlertMessage(message) {
     if (!message || typeof message !== 'object' || Array.isArray(message)) {
         return undefined;
     }
+    const prototype = Object.getPrototypeOf(message);
+    if (prototype !== Object.prototype && prototype !== null) {
+        return undefined;
+    }
     const candidate = message;
     if (!Object.prototype.hasOwnProperty.call(candidate, 'command') ||
         !Object.prototype.hasOwnProperty.call(candidate, 'text')) {

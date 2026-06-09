@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Rejected webview alert payloads with non-record object prototypes before
+  reading message fields.
 - Added explicit webview CSP directives to disable base URI changes and form
   submissions.
 - Required webview alert messages to be plain non-array objects before field

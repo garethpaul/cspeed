@@ -69,6 +69,10 @@ function parseAlertMessage(message: unknown): AlertMessage | undefined {
 	if (!message || typeof message !== 'object' || Array.isArray(message)) {
 		return undefined;
 	}
+	const prototype = Object.getPrototypeOf(message);
+	if (prototype !== Object.prototype && prototype !== null) {
+		return undefined;
+	}
 
 	const candidate = message as { command?: unknown; text?: unknown };
 	if (

@@ -81,10 +81,10 @@ reproducible from the TypeScript source.
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, base URI and form submissions disabled, bounded message
 handling with non-empty normalized alert text, own alert message properties,
-plain non-array objects, single-line alert notifications, and synchronized
-compiled output. The script nonce is generated with Node crypto instead of
-`Math.random`, and the webview script is loaded from `media/main.js` through a
-scoped VS Code webview URI.
+plain non-array objects, plain object prototypes, single-line alert
+notifications, and synchronized compiled output. The script nonce is generated
+with Node crypto instead of `Math.random`, and the webview script is loaded
+from `media/main.js` through a scoped VS Code webview URI.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -110,6 +110,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Alert messages must provide own `command` and `text` properties before the
   extension host reads or displays them.
 - Alert messages must be plain non-array objects before field validation runs.
+- Alert messages must use plain object prototypes before field validation runs.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
   verification.
 - Local `.vscode/` workspace files are ignored so editor launch settings and
@@ -125,6 +126,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   alert own-property validation baseline.
 - See `docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md` for the
   webview alert plain-object validation baseline.
+- See `docs/plans/2026-06-09-cspeed-alert-object-prototype.md` for the webview
+  alert object-prototype validation baseline.
 - See `docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md` for the local
   editor metadata ignore baseline.
 - See `docs/plans/2026-06-09-cspeed-webview-csp-navigation.md` for webview CSP

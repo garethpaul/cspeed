@@ -15,6 +15,7 @@ MESSAGE_OWN_PROPERTY_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-own-prop
 EDITOR_METADATA_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md"
 ALERT_PLAIN_OBJECT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md"
 CSP_NAVIGATION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-webview-csp-navigation.md"
+ALERT_PROTOTYPE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-object-prototype.md"
 
 require_file() {
   path=$1
@@ -41,6 +42,7 @@ for path in \
   "docs/plans/2026-06-09-cspeed-make-build-gate.md" \
   "docs/plans/2026-06-09-cspeed-media-script-baseline.md" \
   "docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md" \
+  "docs/plans/2026-06-09-cspeed-alert-object-prototype.md" \
   "docs/plans/2026-06-09-cspeed-alert-own-properties.md" \
   "docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md" \
   "docs/plans/2026-06-09-cspeed-webview-csp-navigation.md" \
@@ -167,6 +169,12 @@ if ! grep -Fq "Array.isArray(message)" "$SOURCE"; then
 	exit 1
 fi
 
+if ! grep -Fq "Object.getPrototypeOf(message)" "$SOURCE" ||
+   ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$SOURCE"; then
+	printf '%s\n' "Webview alert messages must reject non-record object prototypes." >&2
+	exit 1
+fi
+
 if ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$SOURCE" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$SOURCE"; then
 	printf '%s\n' "Webview alert messages must require own command and text properties." >&2
@@ -217,6 +225,8 @@ fi
 
 if ! grep -Fq "function parseAlertMessage(message)" "$OUTPUT" ||
    ! grep -Fq "Array.isArray(message)" "$OUTPUT" ||
+   ! grep -Fq "Object.getPrototypeOf(message)" "$OUTPUT" ||
+   ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$OUTPUT" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$OUTPUT" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$OUTPUT" ||
    ! grep -Fq "const text = candidate.text.trim()" "$OUTPUT" ||
@@ -278,6 +288,11 @@ fi
 
 if ! grep -Fq "plain non-array objects" "$README"; then
   printf '%s\n' "README must document plain-object webview message validation." >&2
+  exit 1
+fi
+
+if ! grep -Fq "plain object prototypes" "$README"; then
+  printf '%s\n' "README must document webview alert prototype validation." >&2
   exit 1
 fi
 
@@ -378,6 +393,16 @@ fi
 
 if ! grep -Fq "make check" "$ALERT_PLAIN_OBJECT_PLAN"; then
   printf '%s\n' "Alert plain-object plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$ALERT_PROTOTYPE_PLAN"; then
+  printf '%s\n' "Alert object prototype plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$ALERT_PROTOTYPE_PLAN"; then
+  printf '%s\n' "Alert object prototype plan must record make check verification." >&2
   exit 1
 fi
 
