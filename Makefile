@@ -12,7 +12,7 @@ build:
 	$(NPM) run compile
 
 audit:
-	$(NPM) audit --audit-level=high
+	$(NPM) audit --audit-level=moderate
 
 verify: lint test build audit
 

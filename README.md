@@ -12,6 +12,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 ## Repository Contents
 
 - `README.md` - project overview and local usage notes
+- `.github/workflows/check.yml` - GitHub Actions baseline for `make check`
 - `package.json` - JavaScript dependency and script metadata
 - `media` - source or example code
 - `out` - source or example code
@@ -32,7 +33,7 @@ Additional scan context:
 ### Prerequisites
 
 - Git
-- Node.js 20 or newer
+- Node.js 22, matching `.nvmrc` (CI also verifies Node 24)
 - npm
 
 ### Setup
@@ -57,7 +58,7 @@ Detected npm scripts:
 - `npm run check` - `scripts/check-baseline.sh`
 - `npm run lint` - `eslint src --ext ts --max-warnings=0`
 - `npm run test` - `npm run compile && npm run check`
-- `npm run verify` - `npm run lint && npm test && npm audit --audit-level=high`
+- `npm run verify` - `npm run lint && npm test && npm audit --audit-level=moderate`
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
 
@@ -71,8 +72,12 @@ make build
 npm run verify
 npm run lint
 npm test
-npm audit --audit-level=high
+npm audit --audit-level=moderate
 ```
+
+GitHub Actions runs `npm ci` and `make check` on pushes, pull requests, and
+manual dispatches with Node 22 and 24. The workflow uses commit-pinned actions,
+read-only repository access, and a bounded runtime.
 
 `make check` runs the root lint, test, build, and audit gates. `make build`
 runs `npm run compile` so the checked-in `out/` extension output stays
@@ -132,6 +137,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   editor metadata ignore baseline.
 - See `docs/plans/2026-06-09-cspeed-webview-csp-navigation.md` for webview CSP
   navigation restrictions.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the lightweight GitHub
+  Actions baseline.
 
 ## Contributing
 

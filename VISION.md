@@ -30,6 +30,7 @@ Priority:
 - Reject array alert payloads before field validation
 - Reject non-record alert payload prototypes before field validation
 - Keep local VS Code workspace metadata out of the shared project baseline
+- Keep the npm-backed `make check` baseline running in GitHub Actions
 
 Next priorities:
 

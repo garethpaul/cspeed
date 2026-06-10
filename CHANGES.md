@@ -1,5 +1,17 @@
 # Changes
 
+## 2026-06-10
+
+- Added a lightweight GitHub Actions workflow that runs `npm ci` and
+  `make check` for the VS Code webview baseline.
+- Updated the supported runtime to Node 22/24, raised the VS Code API baseline
+  to 1.120, and refreshed the lint, type, and TypeScript toolchain with exact
+  pins.
+- Pinned workflow actions, limited repository access to read-only, and raised
+  dependency auditing from high to moderate severity.
+- Extended the source baseline to require the CI workflow and completed CI
+  plan.
+
 ## 2026-06-09
 
 - Rejected webview alert payloads with non-record object prototypes before

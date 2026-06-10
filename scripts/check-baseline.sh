@@ -16,6 +16,8 @@ EDITOR_METADATA_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-editor-metadata-ign
 ALERT_PLAIN_OBJECT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md"
 CSP_NAVIGATION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-webview-csp-navigation.md"
 ALERT_PROTOTYPE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-object-prototype.md"
+CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
+CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 
 require_file() {
   path=$1
@@ -26,7 +28,9 @@ require_file() {
 }
 
 for path in \
+  ".nvmrc" \
   ".gitignore" \
+  ".github/workflows/check.yml" \
   "CHANGES.md" \
   "Makefile" \
   "README.md" \
@@ -46,9 +50,30 @@ for path in \
   "docs/plans/2026-06-09-cspeed-alert-own-properties.md" \
   "docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md" \
   "docs/plans/2026-06-09-cspeed-webview-csp-navigation.md" \
+  "docs/plans/2026-06-10-ci-baseline.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
+
+for fragment in \
+  "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" \
+  "actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e" \
+  "node-version: [22, 24]" \
+  "permissions:" \
+  "contents: read" \
+  "timeout-minutes: 10" \
+  "npm ci" \
+  "make check"; do
+  if ! grep -Fq "$fragment" "$CI_WORKFLOW"; then
+    printf '%s\n' "GitHub Actions workflow must include $fragment." >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fxq "22" "$ROOT_DIR/.nvmrc"; then
+  printf '%s\n' ".nvmrc must pin the Node 22 development baseline." >&2
+  exit 1
+fi
 
 if ! grep -Fq '"name": "cspeed"' "$PACKAGE_JSON"; then
   printf '%s\n' "package metadata must use the cspeed package name." >&2
@@ -65,7 +90,7 @@ if ! grep -Fq '"lint": "eslint src --ext ts --max-warnings=0"' "$PACKAGE_JSON"; 
   exit 1
 fi
 
-if ! grep -Fq '"verify": "npm run lint && npm test && npm audit --audit-level=high"' "$PACKAGE_JSON"; then
+if ! grep -Fq '"verify": "npm run lint && npm test && npm audit --audit-level=moderate"' "$PACKAGE_JSON"; then
   printf '%s\n' "package.json must expose the combined verify gate." >&2
   exit 1
 fi
@@ -85,20 +110,39 @@ if ! grep -Fq "verify: lint test build audit" "$ROOT_DIR/Makefile"; then
   exit 1
 fi
 
-if ! grep -Fq '"eslint": "^9.13.0"' "$PACKAGE_JSON"; then
-  printf '%s\n' "package.json must align with the checked-in ESLint lockfile baseline." >&2
-  exit 1
-fi
-
-if ! grep -Fq '"typescript": "^5.7.2"' "$PACKAGE_JSON"; then
-  printf '%s\n' "package.json must align with the checked-in TypeScript lockfile baseline." >&2
-  exit 1
-fi
+for package_contract in \
+  '"node": ">=22.13.0 <25"' \
+  '"vscode": "^1.120.0"' \
+  '"@eslint/js": "10.0.1"' \
+  '"@stylistic/eslint-plugin": "5.10.0"' \
+  '"@types/node": "22.19.20"' \
+  '"@types/vscode": "1.120.0"' \
+  '"@types/vscode-webview": "1.57.5"' \
+  '"eslint": "10.4.1"' \
+  '"typescript": "5.9.3"' \
+  '"typescript-eslint": "8.61.0"'; do
+  if ! grep -Fq "$package_contract" "$PACKAGE_JSON"; then
+    printf '%s\n' "package.json must keep dependency contract: $package_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq '"name": "cspeed"' "$PACKAGE_LOCK"; then
   printf '%s\n' "package-lock.json must align with package.json metadata." >&2
   exit 1
 fi
+
+for lock_contract in \
+  '"@eslint/js": "10.0.1"' \
+  '"@stylistic/eslint-plugin": "5.10.0"' \
+  '"eslint": "10.4.1"' \
+  '"typescript": "5.9.3"' \
+  '"typescript-eslint": "8.61.0"'; do
+  if ! grep -Fq "$lock_contract" "$PACKAGE_LOCK"; then
+    printf '%s\n' "package-lock.json must keep dependency contract: $lock_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq "Content-Security-Policy" "$SOURCE"; then
   printf '%s\n' "Webview HTML must include a content security policy." >&2
@@ -261,6 +305,11 @@ if ! grep -Fq "npm test" "$README"; then
   exit 1
 fi
 
+if ! grep -Fq "GitHub Actions" "$README"; then
+  printf '%s\n' "README must document the GitHub Actions check." >&2
+  exit 1
+fi
+
 if ! grep -Fq "make check" "$README"; then
   printf '%s\n' "README must document the root make check gate." >&2
   exit 1
@@ -273,6 +322,11 @@ fi
 
 if ! grep -Fq "npm run verify" "$README"; then
   printf '%s\n' "README must document the combined verify gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Node.js 22" "$README" || ! grep -Fq "audit --audit-level=moderate" "$README"; then
+  printf '%s\n' "README must document the Node 22 and moderate-audit baselines." >&2
   exit 1
 fi
 
@@ -413,6 +467,16 @@ fi
 
 if ! grep -Fq "make check" "$CSP_NAVIGATION_PLAN"; then
   printf '%s\n' "CSP navigation restriction plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$CI_PLAN"; then
+  printf '%s\n' "CI baseline plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$CI_PLAN"; then
+  printf '%s\n' "CI baseline plan must record make check verification." >&2
   exit 1
 fi
 

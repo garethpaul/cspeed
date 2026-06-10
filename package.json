@@ -4,7 +4,8 @@
 	"description": "Minimal sidebar webview example with a hardened webview baseline",
 	"version": "0.0.1",
 	"engines": {
-	  "vscode": "^1.74.0"
+	  "node": ">=22.13.0 <25",
+	  "vscode": "^1.120.0"
 	},
 	"categories": ["Other"],
 	"activationEvents": ["onView:sidebarWebviewView"],
@@ -26,17 +27,17 @@
 	  "check": "scripts/check-baseline.sh",
 	  "lint": "eslint src --ext ts --max-warnings=0",
 	  "test": "npm run compile && npm run check",
-	  "verify": "npm run lint && npm test && npm audit --audit-level=high",
+	  "verify": "npm run lint && npm test && npm audit --audit-level=moderate",
 	  "watch": "tsc -watch -p ./"
 	},
 	"devDependencies": {
-	  "@eslint/js": "^9.13.0",
-	  "@stylistic/eslint-plugin": "^2.9.0",
-	  "@types/node": "^20",
-	  "@types/vscode": "^1.73.0",
-	  "@types/vscode-webview": "^1.57.0",
-	  "eslint": "^9.13.0",
-	  "typescript": "^5.7.2",
-	  "typescript-eslint": "^8.16.0"
+	  "@eslint/js": "10.0.1",
+	  "@stylistic/eslint-plugin": "5.10.0",
+	  "@types/node": "22.19.20",
+	  "@types/vscode": "1.120.0",
+	  "@types/vscode-webview": "1.57.5",
+	  "eslint": "10.4.1",
+	  "typescript": "5.9.3",
+	  "typescript-eslint": "8.61.0"
 	}
   }
