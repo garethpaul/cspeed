@@ -43,6 +43,8 @@ For web services, APIs, sockets, or scraping workflows, prioritize reports invol
 
 Webview alert messages should require owned `command` and `text` fields before
 the extension host displays notifications.
+Executable parser tests should continue covering inherited fields, custom
+prototypes, wrong types, multiline text, and size limits.
 
 ## Dependency and Supply Chain Security
 

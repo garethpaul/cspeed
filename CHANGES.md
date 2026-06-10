@@ -2,6 +2,11 @@
 
 ## 2026-06-10
 
+- Extracted webview alert validation into a pure module and added executable
+  Node tests for accepted, normalized, inherited, malformed, multiline, and
+  oversized messages.
+- Rooted Make targets to the repository and pinned the CI runner to Ubuntu
+  24.04.
 - Added a lightweight GitHub Actions workflow that runs `npm ci` and
   `make check` for the VS Code webview baseline.
 - Updated the supported runtime to Node 22/24, raised the VS Code API baseline

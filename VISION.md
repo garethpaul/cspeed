@@ -29,6 +29,8 @@ Priority:
 - Require owned alert message fields before the extension host reads them
 - Reject array alert payloads before field validation
 - Reject non-record alert payload prototypes before field validation
+- Keep the pure webview alert parser covered by executable acceptance and
+  rejection tests
 - Keep local VS Code workspace metadata out of the shared project baseline
 - Keep the npm-backed `make check` baseline running in GitHub Actions
 

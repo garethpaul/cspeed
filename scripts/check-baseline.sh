@@ -6,6 +6,9 @@ PACKAGE_JSON="$ROOT_DIR/package.json"
 PACKAGE_LOCK="$ROOT_DIR/package-lock.json"
 SOURCE="$ROOT_DIR/src/extension.ts"
 OUTPUT="$ROOT_DIR/out/extension.js"
+ALERT_SOURCE="$ROOT_DIR/src/alertMessage.ts"
+ALERT_OUTPUT="$ROOT_DIR/out/alertMessage.js"
+ALERT_TEST="$ROOT_DIR/test/alertMessage.test.js"
 MEDIA_SCRIPT="$ROOT_DIR/media/main.js"
 README="$ROOT_DIR/README.md"
 PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-webview-baseline.md"
@@ -17,7 +20,9 @@ ALERT_PLAIN_OBJECT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-plain-obje
 CSP_NAVIGATION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-webview-csp-navigation.md"
 ALERT_PROTOTYPE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-object-prototype.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
+PARSER_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-10-cspeed-alert-parser-tests.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
+MAKEFILE="$ROOT_DIR/Makefile"
 
 require_file() {
   path=$1
@@ -37,7 +42,10 @@ for path in \
   "package.json" \
   "package-lock.json" \
   "media/main.js" \
+  "src/alertMessage.ts" \
   "src/extension.ts" \
+  "test/alertMessage.test.js" \
+  "out/alertMessage.js" \
   "out/extension.js" \
   "scripts/check-baseline.sh" \
   "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
@@ -51,9 +59,15 @@ for path in \
   "docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md" \
   "docs/plans/2026-06-09-cspeed-webview-csp-navigation.md" \
   "docs/plans/2026-06-10-ci-baseline.md" \
+  "docs/plans/2026-06-10-cspeed-alert-parser-tests.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
+
+if ! grep -Fq "runs-on: ubuntu-24.04" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions must use the stable Ubuntu 24.04 runner." >&2
+  exit 1
+fi
 
 for fragment in \
   "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" \
@@ -80,8 +94,8 @@ if ! grep -Fq '"name": "cspeed"' "$PACKAGE_JSON"; then
   exit 1
 fi
 
-if ! grep -Fq '"test": "npm run compile && npm run check"' "$PACKAGE_JSON"; then
-  printf '%s\n' "package.json must expose the compile and baseline test gate." >&2
+if ! grep -Fq '"test": "npm run compile && node --test && npm run check"' "$PACKAGE_JSON"; then
+	printf '%s\n' "package.json must expose compiled Node tests and the baseline gate." >&2
   exit 1
 fi
 
@@ -107,6 +121,12 @@ fi
 
 if ! grep -Fq "verify: lint test build audit" "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile verify must run lint, test, build, and audit gates." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
+  [ "$(grep -c '\$(NPM) --prefix \$(ROOT)' "$MAKEFILE")" -ne 4 ]; then
+  printf '%s\n' "Make targets must run npm from the repository root." >&2
   exit 1
 fi
 
@@ -203,49 +223,49 @@ if ! grep -Fq "document.getElementById('send-message')" "$MEDIA_SCRIPT" ||
   exit 1
 fi
 
-if ! grep -Fq "function parseAlertMessage(message: unknown)" "$SOURCE"; then
+if ! grep -Fq "function parseAlertMessage(message: unknown)" "$ALERT_SOURCE"; then
 	printf '%s\n' "Extension host must validate webview messages before handling them." >&2
 	exit 1
 fi
 
-if ! grep -Fq "Array.isArray(message)" "$SOURCE"; then
+if ! grep -Fq "Array.isArray(message)" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must reject array payloads before field validation." >&2
 	exit 1
 fi
 
-if ! grep -Fq "Object.getPrototypeOf(message)" "$SOURCE" ||
-   ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$SOURCE"; then
+if ! grep -Fq "Object.getPrototypeOf(message)" "$ALERT_SOURCE" ||
+   ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must reject non-record object prototypes." >&2
 	exit 1
 fi
 
-if ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$SOURCE" ||
-   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$SOURCE"; then
+if ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$ALERT_SOURCE" ||
+   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must require own command and text properties." >&2
 	exit 1
 fi
 
-if ! grep -Fq "const text = candidate.text.trim()" "$SOURCE"; then
+if ! grep -Fq "const text = candidate.text.trim()" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must be trimmed before display." >&2
 	exit 1
 fi
 
-if ! grep -Fq "text.length === 0 || text.length > 200" "$SOURCE"; then
+if ! grep -Fq "text.length === 0 || text.length > 200" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must have a bounded normalized text length." >&2
 	exit 1
 fi
 
-if ! grep -Fq "/[\r\n]/.test(text)" "$SOURCE"; then
+if ! grep -Fq "/[\r\n]/.test(text)" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must stay on one notification line." >&2
 	exit 1
 fi
 
-if ! grep -Fq "return { command: 'alert', text }" "$SOURCE"; then
+if ! grep -Fq "return { command: 'alert', text }" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must return normalized text for display." >&2
 	exit 1
 fi
 
-if ! grep -Fq "text.length === 0" "$SOURCE"; then
+if ! grep -Fq "text.length === 0" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must not be empty after trimming." >&2
 	exit 1
 fi
@@ -267,17 +287,35 @@ if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'med
   exit 1
 fi
 
-if ! grep -Fq "function parseAlertMessage(message)" "$OUTPUT" ||
-   ! grep -Fq "Array.isArray(message)" "$OUTPUT" ||
-   ! grep -Fq "Object.getPrototypeOf(message)" "$OUTPUT" ||
-   ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$OUTPUT" ||
-   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$OUTPUT" ||
-   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$OUTPUT" ||
-   ! grep -Fq "const text = candidate.text.trim()" "$OUTPUT" ||
-   ! grep -Fq "/[\r\n]/.test(text)" "$OUTPUT"; then
+if ! grep -Fq "function parseAlertMessage(message)" "$ALERT_OUTPUT" ||
+   ! grep -Fq "Array.isArray(message)" "$ALERT_OUTPUT" ||
+   ! grep -Fq "Object.getPrototypeOf(message)" "$ALERT_OUTPUT" ||
+   ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$ALERT_OUTPUT" ||
+   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$ALERT_OUTPUT" ||
+   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$ALERT_OUTPUT" ||
+   ! grep -Fq "const text = candidate.text.trim()" "$ALERT_OUTPUT" ||
+   ! grep -Fq "/[\r\n]/.test(text)" "$ALERT_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with normalized alert parsing." >&2
   exit 1
 fi
+
+if ! grep -Fq "import { parseAlertMessage } from './alertMessage'" "$SOURCE" ||
+  ! grep -Fq 'require("./alertMessage")' "$OUTPUT"; then
+  printf '%s\n' "Extension source and output must use the tested alert parser module." >&2
+  exit 1
+fi
+
+for test_contract in \
+  "accepts and normalizes a valid alert" \
+  "accepts an own-property message with a null prototype" \
+  "rejects non-record values and custom prototypes" \
+  "rejects inherited, missing, or wrong-typed fields" \
+  "rejects empty, multiline, and oversized text"; do
+  if ! grep -Fq "$test_contract" "$ALERT_TEST"; then
+    printf '%s\n' "Alert parser tests must cover: $test_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq 'require("crypto")' "$OUTPUT" || ! grep -Fq "crypto_1.randomBytes)(16).toString('base64')" "$OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the crypto nonce source." >&2
@@ -477,6 +515,12 @@ fi
 
 if ! grep -Fq "make check" "$CI_PLAN"; then
   printf '%s\n' "CI baseline plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$PARSER_TEST_PLAN" ||
+  ! grep -Fq "npm test" "$PARSER_TEST_PLAN"; then
+  printf '%s\n' "Alert parser test plan must be completed and record npm test verification." >&2
   exit 1
 fi
 

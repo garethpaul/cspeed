@@ -57,7 +57,7 @@ Detected npm scripts:
 - `npm run compile` - `tsc -p ./`
 - `npm run check` - `scripts/check-baseline.sh`
 - `npm run lint` - `eslint src --ext ts --max-warnings=0`
-- `npm run test` - `npm run compile && npm run check`
+- `npm run test` - compile, run Node alert-parser tests, and run the source baseline
 - `npm run verify` - `npm run lint && npm test && npm audit --audit-level=moderate`
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
@@ -76,13 +76,14 @@ npm audit --audit-level=moderate
 ```
 
 GitHub Actions runs `npm ci` and `make check` on pushes, pull requests, and
-manual dispatches with Node 22 and 24. The workflow uses commit-pinned actions,
-read-only repository access, and a bounded runtime.
+manual dispatches with Node 22 and 24 on Ubuntu 24.04. The workflow uses
+commit-pinned actions, read-only repository access, and a bounded runtime.
 
 `make check` runs the root lint, test, build, and audit gates. `make build`
 runs `npm run compile` so the checked-in `out/` extension output stays
 reproducible from the TypeScript source.
-`npm test` compiles TypeScript and runs `scripts/check-baseline.sh`. The source
+`npm test` compiles TypeScript, runs executable Node tests for accepted and
+rejected alert messages, and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, base URI and form submissions disabled, bounded message
 handling with non-empty normalized alert text, own alert message properties,
@@ -90,6 +91,8 @@ plain non-array objects, plain object prototypes, single-line alert
 notifications, and synchronized compiled output. The script nonce is generated
 with Node crypto instead of `Math.random`, and the webview script is loaded
 from `media/main.js` through a scoped VS Code webview URI.
+The message parser lives in `src/alertMessage.ts`, so its normalization and
+rejection behavior can be tested without loading a VS Code extension host.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -139,6 +142,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   navigation restrictions.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the lightweight GitHub
   Actions baseline.
+- See `docs/plans/2026-06-10-cspeed-alert-parser-tests.md` for executable
+  webview message validation coverage.
 
 ## Contributing
 
