@@ -1,0 +1,1 @@
+{"version":3,"file":"alertMessageHandler.js","sourceRoot":"","sources":["../src/alertMessageHandler.ts"],"names":[],"mappings":";;AAIA,oDAQC;AAZD,iDAAmD;AAInD,SAAgB,oBAAoB,CAAC,OAAgB,EAAE,SAAoB;IAC1E,MAAM,KAAK,GAAG,IAAA,gCAAiB,EAAC,OAAO,CAAC,CAAC;IACzC,IAAI,CAAC,KAAK,EAAE,CAAC;QACZ,OAAO,KAAK,CAAC;IACd,CAAC;IAED,SAAS,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;IACtB,OAAO,IAAI,CAAC;AACb,CAAC"}

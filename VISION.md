@@ -62,7 +62,9 @@ Messages from the webview should be validated before triggering extension-host
 behavior. Notification text should be trimmed, bounded, and kept to a single
 line before display. Alert payloads should provide owned fields rather than
 inherited properties, and array or non-record object payloads should not pass
-object validation.
+object validation. Executable tests should verify both sides of the dispatch
+boundary: accepted messages emit one normalized notification and rejected
+messages emit none.
 
 ## What We Will Not Merge (For Now)
 

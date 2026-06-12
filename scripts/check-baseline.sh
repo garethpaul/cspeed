@@ -9,6 +9,9 @@ OUTPUT="$ROOT_DIR/out/extension.js"
 ALERT_SOURCE="$ROOT_DIR/src/alertMessage.ts"
 ALERT_OUTPUT="$ROOT_DIR/out/alertMessage.js"
 ALERT_TEST="$ROOT_DIR/test/alertMessage.test.js"
+ALERT_HANDLER_SOURCE="$ROOT_DIR/src/alertMessageHandler.ts"
+ALERT_HANDLER_OUTPUT="$ROOT_DIR/out/alertMessageHandler.js"
+ALERT_HANDLER_TEST="$ROOT_DIR/test/alertMessageHandler.test.js"
 MEDIA_SCRIPT="$ROOT_DIR/media/main.js"
 README="$ROOT_DIR/README.md"
 PLAN="$ROOT_DIR/docs/plans/2026-06-08-cspeed-webview-baseline.md"
@@ -21,6 +24,7 @@ CSP_NAVIGATION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-webview-csp-navigati
 ALERT_PROTOTYPE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-object-prototype.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 PARSER_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-10-cspeed-alert-parser-tests.md"
+DISPATCH_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
 
@@ -43,9 +47,12 @@ for path in \
   "package-lock.json" \
   "media/main.js" \
   "src/alertMessage.ts" \
+  "src/alertMessageHandler.ts" \
   "src/extension.ts" \
   "test/alertMessage.test.js" \
+  "test/alertMessageHandler.test.js" \
   "out/alertMessage.js" \
+  "out/alertMessageHandler.js" \
   "out/extension.js" \
   "scripts/check-baseline.sh" \
   "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
@@ -60,6 +67,7 @@ for path in \
   "docs/plans/2026-06-09-cspeed-webview-csp-navigation.md" \
   "docs/plans/2026-06-10-ci-baseline.md" \
   "docs/plans/2026-06-10-cspeed-alert-parser-tests.md" \
+  "docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -299,9 +307,19 @@ if ! grep -Fq "function parseAlertMessage(message)" "$ALERT_OUTPUT" ||
   exit 1
 fi
 
-if ! grep -Fq "import { parseAlertMessage } from './alertMessage'" "$SOURCE" ||
-  ! grep -Fq 'require("./alertMessage")' "$OUTPUT"; then
-  printf '%s\n' "Extension source and output must use the tested alert parser module." >&2
+if ! grep -Fq "import { dispatchAlertMessage } from './alertMessageHandler'" "$SOURCE" ||
+  ! grep -Fq "dispatchAlertMessage(message, text => vscode.window.showInformationMessage(text))" "$SOURCE" ||
+  ! grep -Fq 'require("./alertMessageHandler")' "$OUTPUT"; then
+  printf '%s\n' "Extension source and output must use the tested alert dispatch module." >&2
+  exit 1
+fi
+
+if ! grep -Fq "import { parseAlertMessage } from './alertMessage'" "$ALERT_HANDLER_SOURCE" ||
+  ! grep -Fq "function dispatchAlertMessage(message, showAlert)" "$ALERT_HANDLER_OUTPUT" ||
+  ! grep -Fq "showAlert(alert.text)" "$ALERT_HANDLER_SOURCE" ||
+  ! grep -Fq "return true" "$ALERT_HANDLER_SOURCE" ||
+  ! grep -Fq 'require("./alertMessage")' "$ALERT_HANDLER_OUTPUT"; then
+  printf '%s\n' "Alert dispatch must preserve validated, observable notification handling." >&2
   exit 1
 fi
 
@@ -316,6 +334,20 @@ for test_contract in \
     exit 1
   fi
 done
+
+for test_contract in \
+  "dispatches one normalized notification for a valid alert" \
+  "does not dispatch notifications for rejected alerts"; do
+  if ! grep -Fq "$test_contract" "$ALERT_HANDLER_TEST"; then
+    printf '%s\n' "Alert dispatch tests must cover: $test_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "status: completed" "$DISPATCH_TEST_PLAN"; then
+  printf '%s\n' "Alert dispatch test plan must remain completed." >&2
+  exit 1
+fi
 
 if ! grep -Fq 'require("crypto")' "$OUTPUT" || ! grep -Fq "crypto_1.randomBytes)(16).toString('base64')" "$OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the crypto nonce source." >&2

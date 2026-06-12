@@ -57,7 +57,7 @@ Detected npm scripts:
 - `npm run compile` - `tsc -p ./`
 - `npm run check` - `scripts/check-baseline.sh`
 - `npm run lint` - `eslint src --ext ts --max-warnings=0`
-- `npm run test` - compile, run Node alert-parser tests, and run the source baseline
+- `npm run test` - compile, run Node alert-parser and dispatch tests, and run the source baseline
 - `npm run verify` - `npm run lint && npm test && npm audit --audit-level=moderate`
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
@@ -83,7 +83,8 @@ commit-pinned actions, read-only repository access, and a bounded runtime.
 runs `npm run compile` so the checked-in `out/` extension output stays
 reproducible from the TypeScript source.
 `npm test` compiles TypeScript, runs executable Node tests for accepted and
-rejected alert messages, and runs `scripts/check-baseline.sh`. The source
+rejected alert messages and notification dispatch, and runs
+`scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, base URI and form submissions disabled, bounded message
 handling with non-empty normalized alert text, own alert message properties,
@@ -93,6 +94,8 @@ with Node crypto instead of `Math.random`, and the webview script is loaded
 from `media/main.js` through a scoped VS Code webview URI.
 The message parser lives in `src/alertMessage.ts`, so its normalization and
 rejection behavior can be tested without loading a VS Code extension host.
+The notification boundary lives in `src/alertMessageHandler.ts`, so tests also
+verify that only accepted messages produce one normalized notification.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -119,6 +122,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   extension host reads or displays them.
 - Alert messages must be plain non-array objects before field validation runs.
 - Alert messages must use plain object prototypes before field validation runs.
+- Alert dispatch tests require accepted messages to emit exactly one normalized
+  notification and rejected messages to emit none.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
   verification.
 - Local `.vscode/` workspace files are ignored so editor launch settings and
@@ -144,6 +149,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Actions baseline.
 - See `docs/plans/2026-06-10-cspeed-alert-parser-tests.md` for executable
   webview message validation coverage.
+- See `docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md` for executable
+  extension-host notification dispatch coverage.
 
 ## Contributing
 
