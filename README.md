@@ -55,10 +55,11 @@ compiled `out/` output.
 Detected npm scripts:
 
 - `npm run compile` - `tsc -p ./`
+- `npm run check:generated` - compile and reject drift in checked-in `out/` files
 - `npm run check` - `scripts/check-baseline.sh`
 - `npm run lint` - `eslint src --ext ts --max-warnings=0`
 - `npm run test` - compile, run Node alert-parser and dispatch tests, and run the source baseline
-- `npm run verify` - `npm run lint && npm test && npm audit --audit-level=moderate`
+- `npm run verify` - lint, tests, generated-output verification, and dependency audit
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
 
@@ -80,8 +81,8 @@ manual dispatches with Node 22 and 24 on Ubuntu 24.04. The workflow uses
 commit-pinned actions, read-only repository access, and a bounded runtime.
 
 `make check` runs the root lint, test, build, and audit gates. `make build`
-runs `npm run compile` so the checked-in `out/` extension output stays
-reproducible from the TypeScript source.
+runs `npm run check:generated`, which compiles TypeScript and fails when the
+checked-in `out/` extension output differs from the generated result.
 `npm test` compiles TypeScript, runs executable Node tests for accepted and
 rejected alert messages and notification dispatch, and runs
 `scripts/check-baseline.sh`. The source

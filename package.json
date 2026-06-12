@@ -24,10 +24,11 @@
 	"scripts": {
 	  "vscode:prepublish": "npm run compile",
 	  "compile": "tsc -p ./",
+	  "check:generated": "npm run compile && git diff --exit-code -- out",
 	  "check": "scripts/check-baseline.sh",
 	  "lint": "eslint src --ext ts --max-warnings=0",
 	  "test": "npm run compile && node --test && npm run check",
-	  "verify": "npm run lint && npm test && npm audit --audit-level=moderate",
+	  "verify": "npm run lint && npm test && npm run check:generated && npm audit --audit-level=moderate",
 	  "watch": "tsc -watch -p ./"
 	},
 	"devDependencies": {

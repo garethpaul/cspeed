@@ -112,7 +112,12 @@ if ! grep -Fq '"lint": "eslint src --ext ts --max-warnings=0"' "$PACKAGE_JSON"; 
   exit 1
 fi
 
-if ! grep -Fq '"verify": "npm run lint && npm test && npm audit --audit-level=moderate"' "$PACKAGE_JSON"; then
+if ! grep -Fq '"check:generated": "npm run compile && git diff --exit-code -- out"' "$PACKAGE_JSON"; then
+  printf '%s\n' "package.json must fail when checked-in compiled output drifts from TypeScript source." >&2
+  exit 1
+fi
+
+if ! grep -Fq '"verify": "npm run lint && npm test && npm run check:generated && npm audit --audit-level=moderate"' "$PACKAGE_JSON"; then
   printf '%s\n' "package.json must expose the combined verify gate." >&2
   exit 1
 fi
@@ -124,6 +129,11 @@ fi
 
 if ! grep -Fq "build:" "$ROOT_DIR/Makefile"; then
   printf '%s\n' "Makefile must expose a build gate." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'run check:generated' "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile build must verify checked-in compiled output after TypeScript compilation." >&2
   exit 1
 fi
 

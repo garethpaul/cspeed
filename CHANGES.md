@@ -6,6 +6,8 @@
   added executable tests for emitted and suppressed notifications.
 - Extended the source baseline to require dispatch wiring, compiled output,
   tests, documentation, and the completed implementation plan.
+- Added a generated-output gate that recompiles TypeScript and rejects any
+  checked-in `out/` drift.
 
 ## 2026-06-10
 
