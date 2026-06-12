@@ -78,7 +78,8 @@ npm audit --audit-level=moderate
 
 GitHub Actions runs `npm ci` and `make check` on pushes, pull requests, and
 manual dispatches with Node 22 and 24 on Ubuntu 24.04. The workflow uses
-commit-pinned actions, read-only repository access, and a bounded runtime.
+commit-pinned actions, read-only repository access, a credential-free
+checkout, and a bounded runtime.
 
 `make check` runs the root lint, test, build, and audit gates. `make build`
 runs `npm run check:generated`, which compiles TypeScript and fails when the

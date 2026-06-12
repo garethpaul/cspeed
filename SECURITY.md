@@ -31,9 +31,9 @@ Helpful reports include:
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: package.json, package-lock.json. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 - GitHub Actions runs `npm ci` and the npm-backed `make check` baseline on Node
-  22 and 24 with commit-pinned actions, read-only repository access, and a
-  moderate-severity audit gate; review workflow, package, and lockfile changes
-  as part of the supply-chain surface.
+  22 and 24 with commit-pinned actions, read-only repository access, a
+  credential-free checkout, and a moderate-severity audit gate; review
+  workflow, package, and lockfile changes as part of the supply-chain surface.
 - Local `.vscode/` workspace metadata should stay untracked so editor launch
   settings and recommendations remain machine-local.
 

@@ -32,7 +32,8 @@ Priority:
 - Keep the pure webview alert parser covered by executable acceptance and
   rejection tests
 - Keep local VS Code workspace metadata out of the shared project baseline
-- Keep the npm-backed `make check` baseline running in GitHub Actions
+- Keep the npm-backed `make check` baseline running in GitHub Actions with a
+  credential-free checkout
 
 Next priorities:
 

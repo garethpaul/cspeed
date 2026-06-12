@@ -2,6 +2,8 @@
 
 ## 2026-06-12
 
+- Stopped GitHub Actions checkout from persisting its credential and added an
+  exact static contract for the sole workflow and checkout step.
 - Extracted alert notification dispatch into a pure extension-host boundary and
   added executable tests for emitted and suppressed notifications.
 - Extended the source baseline to require dispatch wiring, compiled output,
