@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 const crypto_1 = require("crypto");
 const vscode = require("vscode");
-const alertMessage_1 = require("./alertMessage");
+const alertMessageHandler_1 = require("./alertMessageHandler");
 function activate(context) {
     const provider = new SidebarProvider(context.extensionUri);
     context.subscriptions.push(vscode.window.registerWebviewViewProvider('sidebarWebviewView', provider));
@@ -19,10 +19,7 @@ class SidebarProvider {
         };
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
         webviewView.webview.onDidReceiveMessage(message => {
-            const alert = (0, alertMessage_1.parseAlertMessage)(message);
-            if (alert) {
-                vscode.window.showInformationMessage(alert.text);
-            }
+            (0, alertMessageHandler_1.dispatchAlertMessage)(message, text => vscode.window.showInformationMessage(text));
         });
     }
     _getHtmlForWebview(webview) {

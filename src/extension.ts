@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import * as vscode from 'vscode';
-import { parseAlertMessage } from './alertMessage';
+import { dispatchAlertMessage } from './alertMessageHandler';
 
 export function activate(context: vscode.ExtensionContext) {
 	const provider = new SidebarProvider(context.extensionUri);
@@ -25,10 +25,7 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage(message => {
-			const alert = parseAlertMessage(message);
-			if (alert) {
-				vscode.window.showInformationMessage(alert.text);
-			}
+			dispatchAlertMessage(message, text => vscode.window.showInformationMessage(text));
 		});
 	}
 

@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-12
+
+- Extracted alert notification dispatch into a pure extension-host boundary and
+  added executable tests for emitted and suppressed notifications.
+- Extended the source baseline to require dispatch wiring, compiled output,
+  tests, documentation, and the completed implementation plan.
+
 ## 2026-06-10
 
 - Extracted webview alert validation into a pure module and added executable
