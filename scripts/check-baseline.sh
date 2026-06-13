@@ -26,6 +26,7 @@ CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 PARSER_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-10-cspeed-alert-parser-tests.md"
 DISPATCH_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
+CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-characters.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
 
@@ -70,6 +71,7 @@ for path in \
   "docs/plans/2026-06-10-cspeed-alert-parser-tests.md" \
   "docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
+  "docs/plans/2026-06-13-cspeed-alert-control-characters.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -284,8 +286,13 @@ if ! grep -Fq "text.length === 0 || text.length > 200" "$ALERT_SOURCE"; then
 	exit 1
 fi
 
-if ! grep -Fq "/[\r\n]/.test(text)" "$ALERT_SOURCE"; then
-	printf '%s\n' "Webview alert messages must stay on one notification line." >&2
+if ! grep -Fq 'function containsDisplayControlCharacter(text: string): boolean' "$ALERT_SOURCE" ||
+  ! grep -Fq 'codePoint <= 0x1f' "$ALERT_SOURCE" ||
+  ! grep -Fq 'codePoint >= 0x7f && codePoint <= 0x9f' "$ALERT_SOURCE" ||
+  ! grep -Fq 'codePoint === 0x2028' "$ALERT_SOURCE" ||
+  ! grep -Fq 'codePoint === 0x2029' "$ALERT_SOURCE" ||
+  ! grep -Fq 'containsDisplayControlCharacter(candidate.text)' "$ALERT_SOURCE"; then
+	printf '%s\n' "Webview alert messages must reject display controls and Unicode line separators before normalization." >&2
 	exit 1
 fi
 
@@ -323,7 +330,7 @@ if ! grep -Fq "function parseAlertMessage(message)" "$ALERT_OUTPUT" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$ALERT_OUTPUT" ||
    ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$ALERT_OUTPUT" ||
    ! grep -Fq "const text = candidate.text.trim()" "$ALERT_OUTPUT" ||
-   ! grep -Fq "/[\r\n]/.test(text)" "$ALERT_OUTPUT"; then
+   ! grep -Fq 'containsDisplayControlCharacter(candidate.text)' "$ALERT_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with normalized alert parsing." >&2
   exit 1
 fi
@@ -346,10 +353,12 @@ fi
 
 for test_contract in \
   "accepts and normalizes a valid alert" \
+  "accepts ordinary Unicode alert text" \
   "accepts an own-property message with a null prototype" \
   "rejects non-record values and custom prototypes" \
   "rejects inherited, missing, or wrong-typed fields" \
-  "rejects empty, multiline, and oversized text"; do
+  "rejects empty, multiline, and oversized text" \
+  "rejects display control characters and Unicode line separators"; do
   if ! grep -Fq "$test_contract" "$ALERT_TEST"; then
     printf '%s\n' "Alert parser tests must cover: $test_contract" >&2
     exit 1
@@ -365,8 +374,23 @@ for test_contract in \
   fi
 done
 
+if ! grep -Fq "Ready\\tNow" "$ALERT_HANDLER_TEST" ||
+  ! grep -Fq "Ready\\u2028Now" "$ALERT_HANDLER_TEST" ||
+  ! grep -Fq "assert.deepEqual(notifications, [])" "$ALERT_HANDLER_TEST"; then
+  printf '%s\n' "Alert dispatch tests must reject display-control payloads without notifications." >&2
+  exit 1
+fi
+
 if ! grep -Fq "status: completed" "$DISPATCH_TEST_PLAN"; then
   printf '%s\n' "Alert dispatch test plan must remain completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$CONTROL_CHARACTER_PLAN" ||
+  ! grep -Fq "Node 22.22.1 and Node 24.16.0" "$CONTROL_CHARACTER_PLAN" ||
+  ! grep -Fq "Ten hostile mutations were rejected" "$CONTROL_CHARACTER_PLAN" ||
+  ! grep -Fq "A VS Code extension host was not launched" "$CONTROL_CHARACTER_PLAN"; then
+  printf '%s\n' "Alert control-character plan must record completed verification and its extension-host limit." >&2
   exit 1
 fi
 
@@ -448,6 +472,13 @@ fi
 
 if ! grep -Fq "base URI and form submissions disabled" "$README"; then
   printf '%s\n' "README must document CSP navigation restrictions." >&2
+  exit 1
+fi
+
+if ! grep -Fq "C0/C1 controls and Unicode" "$README" ||
+  ! grep -Fq "Rejected display control characters and Unicode" "$ROOT_DIR/CHANGES.md" ||
+  ! grep -Fq "Reject display controls and Unicode line separators" "$ROOT_DIR/VISION.md"; then
+  printf '%s\n' "Maintenance docs must record the alert display-control boundary." >&2
   exit 1
 fi
 

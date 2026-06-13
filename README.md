@@ -118,8 +118,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   denying default resource loads.
 - The sidebar webview script is loaded from `media/main.js` under the same
   nonce-scoped content security policy.
-- Webview alert text is trimmed, bounded, and kept on one notification line
-  before the extension host displays it.
+- Webview alert text is trimmed and bounded, while C0/C1 controls and Unicode
+  line separators are rejected before the extension host displays it.
 - Alert messages must provide own `command` and `text` properties before the
   extension host reads or displays them.
 - Alert messages must be plain non-array objects before field validation runs.

@@ -11,6 +11,13 @@ test('accepts and normalizes a valid alert', () => {
 	);
 });
 
+test('accepts ordinary Unicode alert text', () => {
+	assert.deepEqual(
+		parseAlertMessage({ command: 'alert', text: '  Caf\u00e9 \u6771\u4eac \ud83d\ude80  ' }),
+		{ command: 'alert', text: 'Caf\u00e9 \u6771\u4eac \ud83d\ude80' }
+	);
+});
+
 test('accepts an own-property message with a null prototype', () => {
 	const message = Object.create(null);
 	message.command = 'alert';
@@ -35,4 +42,20 @@ test('rejects empty, multiline, and oversized text', () => {
 	assert.equal(parseAlertMessage({ command: 'alert', text: '   ' }), undefined);
 	assert.equal(parseAlertMessage({ command: 'alert', text: 'line one\nline two' }), undefined);
 	assert.equal(parseAlertMessage({ command: 'alert', text: 'x'.repeat(201) }), undefined);
+});
+
+test('rejects display control characters and Unicode line separators', () => {
+	const rejectedText = [
+		'\tReady',
+		'Ready\u0000Now',
+		'Ready\u001fNow',
+		'Ready\u007fNow',
+		'Ready\u0085Now',
+		'Ready\u2028Now',
+		'Ready\u2029Now'
+	];
+
+	for (const text of rejectedText) {
+		assert.equal(parseAlertMessage({ command: 'alert', text }), undefined);
+	}
 });

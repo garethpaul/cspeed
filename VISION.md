@@ -26,6 +26,8 @@ Priority:
 - Keep the webview button handler in the checked media script
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications
+- Reject display controls and Unicode line separators before notification
+  dispatch
 - Require owned alert message fields before the extension host reads them
 - Reject array alert payloads before field validation
 - Reject non-record alert payload prototypes before field validation

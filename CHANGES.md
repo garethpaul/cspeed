@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-13
+
+- Rejected display control characters and Unicode line separators before
+  webview alert text reaches VS Code notifications.
+
 ## 2026-06-12
 
 - Stopped GitHub Actions checkout from persisting its credential and added an
