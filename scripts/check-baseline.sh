@@ -28,6 +28,7 @@ DISPATCH_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-12-cspeed-alert-dispatch-tests.
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-characters.md"
 ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
+BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
 
@@ -74,6 +75,7 @@ for path in \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   "docs/plans/2026-06-13-cspeed-alert-control-characters.md" \
   "docs/plans/2026-06-13-cspeed-alert-accessor-guards.md" \
+  "docs/plans/2026-06-13-cspeed-alert-bidi-controls.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -300,6 +302,18 @@ if ! grep -Fq 'function containsDisplayControlCharacter(text: string): boolean' 
 	exit 1
 fi
 
+for bidi_contract in \
+  'codePoint === 0x061c' \
+  'codePoint >= 0x200e && codePoint <= 0x200f' \
+  'codePoint >= 0x202a && codePoint <= 0x202e' \
+  'codePoint >= 0x2066 && codePoint <= 0x2069'; do
+  if ! grep -Fq "$bidi_contract" "$ALERT_SOURCE" ||
+    ! grep -Fq "$bidi_contract" "$ALERT_OUTPUT"; then
+    printf '%s\n' "Alert parser source and output must reject bidi controls: $bidi_contract" >&2
+    exit 1
+  fi
+done
+
 if ! grep -Fq "return { command: 'alert', text }" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must return normalized text for display." >&2
 	exit 1
@@ -363,6 +377,7 @@ for test_contract in \
   "rejects non-record values and custom prototypes" \
   "rejects throwing reflection traps without escaping" \
   "rejects accessors without invoking them" \
+  "accepts right-to-left script text without ordering controls" \
   "rejects inherited, missing, or wrong-typed fields" \
   "rejects empty, multiline, and oversized text" \
   "rejects display control characters and Unicode line separators"; do
@@ -371,6 +386,32 @@ for test_contract in \
     exit 1
   fi
 done
+
+for bidi_fixture in \
+  "'\\u061c'" \
+  "'\\u200e'" \
+  "'\\u200f'" \
+  "'\\u202a'" \
+  "'\\u202b'" \
+  "'\\u202c'" \
+  "'\\u202d'" \
+  "'\\u202e'" \
+  "'\\u2066'" \
+  "'\\u2067'" \
+  "'\\u2068'" \
+  "'\\u2069'"; do
+  if ! grep -Fq "$bidi_fixture" "$ALERT_TEST"; then
+    printf '%s\n' "Alert parser tests must retain bidi fixture: $bidi_fixture" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "rejects Unicode bidirectional ordering controls" "$ALERT_TEST" ||
+  ! grep -Fq "Invoice \\u202etxt.exe" "$ALERT_TEST" ||
+  ! grep -Fq "Invoice \\u202etxt.exe" "$ALERT_HANDLER_TEST"; then
+  printf '%s\n' "Parser and dispatch tests must cover the complete bidi-control boundary." >&2
+  exit 1
+fi
 
 for test_contract in \
   "dispatches one normalized notification for a valid alert" \
@@ -482,7 +523,7 @@ if ! grep -Fq "base URI and form submissions disabled" "$README"; then
   exit 1
 fi
 
-if ! grep -Fq "C0/C1 controls and Unicode" "$README" ||
+if ! grep -Fq "C0/C1 controls, Unicode line" "$README" ||
   ! grep -Fq "Rejected display control characters and Unicode" "$ROOT_DIR/CHANGES.md" ||
   ! grep -Fq "Reject display controls and Unicode line separators" "$ROOT_DIR/VISION.md"; then
   printf '%s\n' "Maintenance docs must record the alert display-control boundary." >&2
@@ -497,8 +538,30 @@ if ! grep -Fq "own data properties without invoking accessors" "$README" || \
   ! grep -Fq "status: completed" "$ACCESSOR_GUARD_PLAN" || \
   ! grep -Fq "Eight isolated hostile mutations" "$ACCESSOR_GUARD_PLAN"; then
   printf '%s\n' "Maintenance docs and plan must record the fail-closed reflection boundary." >&2
+	exit 1
+fi
+
+if ! grep -Fq "Unicode bidirectional ordering controls" "$README" ||
+  ! grep -Fq "bidirectional ordering controls" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Rejected Unicode bidirectional ordering controls" "$ROOT_DIR/CHANGES.md" ||
+  ! grep -Fq "Reject Unicode bidirectional ordering controls" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "bidirectional ordering controls before notification dispatch" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Maintenance docs must record the bidi-control alert boundary." >&2
   exit 1
 fi
+
+for plan_contract in \
+  'status: completed' \
+  '## Status: Completed' \
+  '## Work Completed' \
+  '## Verification Completed' \
+  'Node `22.22.2` and Node `24.16.0`' \
+  'Ten isolated hostile mutations were rejected'; do
+  if ! grep -Fq "$plan_contract" "$BIDI_CONTROL_PLAN"; then
+    printf '%s\n' "Alert bidi-control plan must keep completed evidence: $plan_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq "webview script is loaded from \`media/main.js\`" "$README"; then
   printf '%s\n' "README must document the external media script baseline." >&2

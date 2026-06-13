@@ -1,13 +1,13 @@
 ---
 title: CSpeed Alert Bidirectional Control Guard
 type: security
-status: planned
+status: completed
 date: 2026-06-13
 ---
 
 # CSpeed Alert Bidirectional Control Guard
 
-## Status: Planned
+## Status: Completed
 
 ## Problem Frame
 
@@ -68,3 +68,28 @@ Unicode Standard 17.0, section 23.2.5, defines the relevant ordering controls as
   must distinguish script characters from ordering controls.
 - The source and checked-in JavaScript output must stay identical after the
   TypeScript compile step.
+
+## Work Completed
+
+- Rejected all 12 Unicode bidirectional ordering controls from candidate alert
+  text before normalization and notification dispatch.
+- Added parser coverage for every control, a mixed RTL-override spoofing
+  payload, and valid Arabic/Hebrew text without ordering controls.
+- Added dispatch, source/output parity, documentation, and completed-plan
+  contracts for the boundary.
+
+## Verification Completed
+
+- Node `22.22.2` and Node `24.16.0` each passed `npm run verify`.
+- `make check` and the absolute-path Make invocation from `/tmp` passed.
+- All 13 parser and dispatch tests passed on both supported Node majors.
+- `npm run check:generated` confirmed the TypeScript source and checked-in
+  JavaScript output are synchronized.
+- `npm audit --json` reported zero vulnerabilities at every severity.
+- `sh -n scripts/check-baseline.sh`, staged and unstaged `git diff --check`,
+  secret-pattern, artifact, and untracked-file checks passed.
+- Ten isolated hostile mutations were rejected across all four code-point
+  groups, parser and dispatch fixtures, valid RTL acceptance, documentation,
+  plan status, and verification evidence.
+- A VS Code extension host was not launched; the pure parser and dispatch
+  boundaries are fully exercised without invoking VS Code APIs.

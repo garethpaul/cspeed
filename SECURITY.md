@@ -38,6 +38,8 @@ Helpful reports include:
   settings and recommendations remain machine-local.
 - Webview alert parsing rejects accessor-backed or reflective trap objects
   without invoking getters or propagating exceptions into extension dispatch.
+- Webview alert parsing rejects Unicode bidirectional ordering controls before
+  notification dispatch while preserving ordinary right-to-left script text.
 
 ## Service and API Notes
 

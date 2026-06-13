@@ -28,6 +28,7 @@ Priority:
 - Normalize webview alert text before displaying VS Code notifications
 - Reject display controls and Unicode line separators before notification
   dispatch
+- Reject Unicode bidirectional ordering controls before notification dispatch
 - Require owned alert message fields before the extension host reads them
 - Reject accessor-backed and trap-throwing alert objects without side effects
 - Reject array alert payloads before field validation

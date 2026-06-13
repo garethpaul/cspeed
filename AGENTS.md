@@ -53,6 +53,7 @@
 - The webview CSP keeps base URI and form submissions disabled in addition to denying default resource loads.
 - The sidebar webview script is loaded from `media/main.js` under the same nonce-scoped content security policy.
 - Webview alert text is trimmed, bounded, and kept on one notification line before the extension host displays it.
+- Webview alert parsing rejects bidirectional ordering controls before notification dispatch while preserving ordinary right-to-left text.
 - Alert messages must provide own `command` and `text` properties before the extension host reads or displays them.
 
 ## Agent workflow

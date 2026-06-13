@@ -18,6 +18,13 @@ test('accepts ordinary Unicode alert text', () => {
 	);
 });
 
+test('accepts right-to-left script text without ordering controls', () => {
+	assert.deepEqual(
+		parseAlertMessage({ command: 'alert', text: '  \u0645\u0631\u062d\u0628\u0627 \u05e9\u05dc\u05d5\u05dd  ' }),
+		{ command: 'alert', text: '\u0645\u0631\u062d\u0628\u0627 \u05e9\u05dc\u05d5\u05dd' }
+	);
+});
+
 test('accepts an own-property message with a null prototype', () => {
 	const message = Object.create(null);
 	message.command = 'alert';
@@ -88,4 +95,29 @@ test('rejects display control characters and Unicode line separators', () => {
 	for (const text of rejectedText) {
 		assert.equal(parseAlertMessage({ command: 'alert', text }), undefined);
 	}
+});
+
+test('rejects Unicode bidirectional ordering controls', () => {
+	const bidiControls = [
+		'\u061c',
+		'\u200e',
+		'\u200f',
+		'\u202a',
+		'\u202b',
+		'\u202c',
+		'\u202d',
+		'\u202e',
+		'\u2066',
+		'\u2067',
+		'\u2068',
+		'\u2069'
+	];
+
+	for (const control of bidiControls) {
+		assert.equal(parseAlertMessage({ command: 'alert', text: `Ready${control}Now` }), undefined);
+	}
+	assert.equal(
+		parseAlertMessage({ command: 'alert', text: 'Invoice \u202etxt.exe' }),
+		undefined
+	);
 });

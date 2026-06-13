@@ -44,6 +44,7 @@ test('does not dispatch notifications for rejected alerts', () => {
 		{ command: 'alert', text: 'line one\nline two' },
 		{ command: 'alert', text: 'Ready\tNow' },
 		{ command: 'alert', text: 'Ready\u2028Now' },
+		{ command: 'alert', text: 'Invoice \u202etxt.exe' },
 		{ command: 'alert', text: 'x'.repeat(201) }
 	];
 	const notifications = [];
