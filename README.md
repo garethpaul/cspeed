@@ -122,6 +122,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   line separators are rejected before the extension host displays it.
 - Alert messages must provide own `command` and `text` properties before the
   extension host reads or displays them.
+- Alert fields must be own data properties without invoking accessors, and
+  reflection failures are rejected without escaping message dispatch.
 - Alert messages must be plain non-array objects before field validation runs.
 - Alert messages must use plain object prototypes before field validation runs.
 - Alert dispatch tests require accepted messages to emit exactly one normalized

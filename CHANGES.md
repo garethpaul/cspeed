@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Rejected accessor-backed and trap-throwing alert objects without invoking
+  getters or propagating reflection failures through notification dispatch.
 - Rejected display control characters and Unicode line separators before
   webview alert text reaches VS Code notifications.
 

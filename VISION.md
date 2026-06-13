@@ -29,6 +29,7 @@ Priority:
 - Reject display controls and Unicode line separators before notification
   dispatch
 - Require owned alert message fields before the extension host reads them
+- Reject accessor-backed and trap-throwing alert objects without side effects
 - Reject array alert payloads before field validation
 - Reject non-record alert payload prototypes before field validation
 - Keep the pure webview alert parser covered by executable acceptance and

@@ -36,6 +36,8 @@ Helpful reports include:
   workflow, package, and lockfile changes as part of the supply-chain surface.
 - Local `.vscode/` workspace metadata should stay untracked so editor launch
   settings and recommendations remain machine-local.
+- Webview alert parsing rejects accessor-backed or reflective trap objects
+  without invoking getters or propagating exceptions into extension dispatch.
 
 ## Service and API Notes
 

@@ -31,6 +31,36 @@ test('rejects non-record values and custom prototypes', () => {
 	assert.equal(parseAlertMessage(Object.create({ command: 'alert', text: 'Ready' })), undefined);
 });
 
+test('rejects throwing reflection traps without escaping', () => {
+	const message = new Proxy({}, {
+		getPrototypeOf() {
+			throw new Error('prototype trap sentinel');
+		}
+	});
+	assert.doesNotThrow(() => assert.equal(parseAlertMessage(message), undefined));
+
+	const revocable = Proxy.revocable({}, {});
+	revocable.revoke();
+	assert.doesNotThrow(() => assert.equal(parseAlertMessage(revocable.proxy), undefined));
+});
+
+test('rejects accessors without invoking them', () => {
+	let getterCalls = 0;
+	const message = {};
+	Object.defineProperties(message, {
+		command: {
+			get() {
+				getterCalls += 1;
+				throw new Error('command getter sentinel');
+			}
+		},
+		text: { value: 'Ready', enumerable: true }
+	});
+
+	assert.equal(parseAlertMessage(message), undefined);
+	assert.equal(getterCalls, 0);
+});
+
 test('rejects inherited, missing, or wrong-typed fields', () => {
 	assert.equal(parseAlertMessage({ text: 'Ready' }), undefined);
 	assert.equal(parseAlertMessage({ command: 'alert' }), undefined);

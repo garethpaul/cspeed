@@ -2,7 +2,7 @@
 title: Cspeed Alert Accessor Guards
 type: fix
 date: 2026-06-13
-status: planned
+status: completed
 ---
 
 # Cspeed Alert Accessor Guards
@@ -84,6 +84,26 @@ accessors during validation.
   each mutation must fail.
 - Do not claim VS Code extension-host validation unless an extension host is
   launched; the pure parser/dispatch boundary is the local executable scope.
+
+## Verification Results
+
+- Node 22.22.2 and Node 24.16.0 `npm run verify` passed zero-warning lint,
+  eleven parser/dispatch tests, generated-output synchronization, and an audit
+  with zero known vulnerabilities.
+- Repository and absolute-path `make check` passed with the same source,
+  generated-output, test, and audit gates.
+- Plan-aware review found and fixed one revoked-proxy gap by moving
+  `Array.isArray` inside the guarded reflection block and covering it at both
+  parser and dispatch boundaries; no residual findings remain.
+- Shell syntax, whitespace, unchanged lockfile, secret, and generated-artifact
+  checks passed.
+- Eight isolated hostile mutations covering reflection failure propagation,
+  direct property reads, accessor acceptance, parser and dispatch fixture
+  removal, generated-output drift, documentation drift, and completed-plan
+  status were rejected.
+- `agent-browser` is not installed and a VS Code extension host was not
+  launched, so no rendered webview or extension-host claim is made. Webview
+  schema, CSP, provider registration, and notification limits are unchanged.
 
 ## Prioritized Follow-Ups
 

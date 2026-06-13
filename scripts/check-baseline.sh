@@ -27,6 +27,7 @@ PARSER_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-10-cspeed-alert-parser-tests.md"
 DISPATCH_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md"
 CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-boundary.md"
 CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-characters.md"
+ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
 
@@ -72,6 +73,7 @@ for path in \
   "docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md" \
   "docs/plans/2026-06-12-checkout-credential-boundary.md" \
   "docs/plans/2026-06-13-cspeed-alert-control-characters.md" \
+  "docs/plans/2026-06-13-cspeed-alert-accessor-guards.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -270,13 +272,15 @@ if ! grep -Fq "Object.getPrototypeOf(message)" "$ALERT_SOURCE" ||
 	exit 1
 fi
 
-if ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$ALERT_SOURCE" ||
-   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$ALERT_SOURCE"; then
-	printf '%s\n' "Webview alert messages must require own command and text properties." >&2
+if ! grep -Fq "Object.getOwnPropertyDescriptor(message, 'command')" "$ALERT_SOURCE" ||
+   ! grep -Fq "Object.getOwnPropertyDescriptor(message, 'text')" "$ALERT_SOURCE" ||
+   ! grep -Fq "hasOwnProperty.call(commandDescriptor, 'value')" "$ALERT_SOURCE" ||
+   ! grep -Fq "hasOwnProperty.call(textDescriptor, 'value')" "$ALERT_SOURCE"; then
+	printf '%s\n' "Webview alert messages must require own command and text data properties." >&2
 	exit 1
 fi
 
-if ! grep -Fq "const text = candidate.text.trim()" "$ALERT_SOURCE"; then
+if ! grep -Fq "const text = candidateText.trim()" "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must be trimmed before display." >&2
 	exit 1
 fi
@@ -291,7 +295,7 @@ if ! grep -Fq 'function containsDisplayControlCharacter(text: string): boolean' 
   ! grep -Fq 'codePoint >= 0x7f && codePoint <= 0x9f' "$ALERT_SOURCE" ||
   ! grep -Fq 'codePoint === 0x2028' "$ALERT_SOURCE" ||
   ! grep -Fq 'codePoint === 0x2029' "$ALERT_SOURCE" ||
-  ! grep -Fq 'containsDisplayControlCharacter(candidate.text)' "$ALERT_SOURCE"; then
+  ! grep -Fq 'containsDisplayControlCharacter(candidateText)' "$ALERT_SOURCE"; then
 	printf '%s\n' "Webview alert messages must reject display controls and Unicode line separators before normalization." >&2
 	exit 1
 fi
@@ -327,10 +331,11 @@ if ! grep -Fq "function parseAlertMessage(message)" "$ALERT_OUTPUT" ||
    ! grep -Fq "Array.isArray(message)" "$ALERT_OUTPUT" ||
    ! grep -Fq "Object.getPrototypeOf(message)" "$ALERT_OUTPUT" ||
    ! grep -Fq "prototype !== Object.prototype && prototype !== null" "$ALERT_OUTPUT" ||
-   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'command')" "$ALERT_OUTPUT" ||
-   ! grep -Fq "Object.prototype.hasOwnProperty.call(candidate, 'text')" "$ALERT_OUTPUT" ||
-   ! grep -Fq "const text = candidate.text.trim()" "$ALERT_OUTPUT" ||
-   ! grep -Fq 'containsDisplayControlCharacter(candidate.text)' "$ALERT_OUTPUT"; then
+   ! grep -Fq "Object.getOwnPropertyDescriptor(message, 'command')" "$ALERT_OUTPUT" ||
+   ! grep -Fq "Object.getOwnPropertyDescriptor(message, 'text')" "$ALERT_OUTPUT" ||
+   ! grep -Fq "hasOwnProperty.call(commandDescriptor, 'value')" "$ALERT_OUTPUT" ||
+   ! grep -Fq "const text = candidateText.trim()" "$ALERT_OUTPUT" ||
+   ! grep -Fq 'containsDisplayControlCharacter(candidateText)' "$ALERT_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with normalized alert parsing." >&2
   exit 1
 fi
@@ -356,6 +361,8 @@ for test_contract in \
   "accepts ordinary Unicode alert text" \
   "accepts an own-property message with a null prototype" \
   "rejects non-record values and custom prototypes" \
+  "rejects throwing reflection traps without escaping" \
+  "rejects accessors without invoking them" \
   "rejects inherited, missing, or wrong-typed fields" \
   "rejects empty, multiline, and oversized text" \
   "rejects display control characters and Unicode line separators"; do
@@ -479,6 +486,17 @@ if ! grep -Fq "C0/C1 controls and Unicode" "$README" ||
   ! grep -Fq "Rejected display control characters and Unicode" "$ROOT_DIR/CHANGES.md" ||
   ! grep -Fq "Reject display controls and Unicode line separators" "$ROOT_DIR/VISION.md"; then
   printf '%s\n' "Maintenance docs must record the alert display-control boundary." >&2
+  exit 1
+fi
+
+if ! grep -Fq "own data properties without invoking accessors" "$README" || \
+  ! grep -Fq "accessor-backed and trap-throwing" "$ROOT_DIR/CHANGES.md" || \
+  ! grep -Fq "Reject accessor-backed and trap-throwing" "$ROOT_DIR/VISION.md" || \
+  ! grep -Fq "accessor-backed or reflective trap" "$ROOT_DIR/SECURITY.md" || \
+  ! grep -Fq "R5. Parser and dispatch tests" "$ACCESSOR_GUARD_PLAN" || \
+  ! grep -Fq "status: completed" "$ACCESSOR_GUARD_PLAN" || \
+  ! grep -Fq "Eight isolated hostile mutations" "$ACCESSOR_GUARD_PLAN"; then
+  printf '%s\n' "Maintenance docs and plan must record the fail-closed reflection boundary." >&2
   exit 1
 fi
 

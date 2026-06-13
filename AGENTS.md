@@ -46,6 +46,8 @@
 
 ## Safety and gotchas
 
+- Webview alert messages must use own data properties; parser validation must not invoke accessors and must reject reflection traps without throwing.
+
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
 - The webview uses a crypto-generated CSP nonce and keeps checked-in compiled output synchronized with the TypeScript source.
 - The webview CSP keeps base URI and form submissions disabled in addition to denying default resource loads.

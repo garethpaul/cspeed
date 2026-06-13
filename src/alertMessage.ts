@@ -21,30 +21,46 @@ function containsDisplayControlCharacter(text: string): boolean {
 }
 
 export function parseAlertMessage(message: unknown): AlertMessage | undefined {
-	if (!message || typeof message !== 'object' || Array.isArray(message)) {
-		return undefined;
-	}
-	const prototype = Object.getPrototypeOf(message);
-	if (prototype !== Object.prototype && prototype !== null) {
+	if (!message || typeof message !== 'object') {
 		return undefined;
 	}
 
-	const candidate = message as { command?: unknown; text?: unknown };
+	let prototype: object | null;
+	let commandDescriptor: PropertyDescriptor | undefined;
+	let textDescriptor: PropertyDescriptor | undefined;
+	try {
+		if (Array.isArray(message)) {
+			return undefined;
+		}
+		prototype = Object.getPrototypeOf(message);
+		commandDescriptor = Object.getOwnPropertyDescriptor(message, 'command');
+		textDescriptor = Object.getOwnPropertyDescriptor(message, 'text');
+	} catch {
+		return undefined;
+	}
+
+	if (prototype !== Object.prototype && prototype !== null) {
+		return undefined;
+	}
 	if (
-		!Object.prototype.hasOwnProperty.call(candidate, 'command') ||
-		!Object.prototype.hasOwnProperty.call(candidate, 'text')
+		!commandDescriptor ||
+		!textDescriptor ||
+		!Object.prototype.hasOwnProperty.call(commandDescriptor, 'value') ||
+		!Object.prototype.hasOwnProperty.call(textDescriptor, 'value')
 	) {
 		return undefined;
 	}
 
-	if (candidate.command !== 'alert' || typeof candidate.text !== 'string') {
+	const command = commandDescriptor.value as unknown;
+	const candidateText = textDescriptor.value as unknown;
+	if (command !== 'alert' || typeof candidateText !== 'string') {
 		return undefined;
 	}
-	if (containsDisplayControlCharacter(candidate.text)) {
+	if (containsDisplayControlCharacter(candidateText)) {
 		return undefined;
 	}
 
-	const text = candidate.text.trim();
+	const text = candidateText.trim();
 	if (text.length === 0 || text.length > 200) {
 		return undefined;
 	}
