@@ -58,7 +58,7 @@ Detected npm scripts:
 - `npm run check:generated` - compile and reject drift in checked-in `out/` files
 - `npm run check` - `scripts/check-baseline.sh`
 - `npm run lint` - `eslint src --ext ts --max-warnings=0`
-- `npm run test` - compile, run Node alert-parser and dispatch tests, and run the source baseline
+- `npm run test` - compile, run Node parser, dispatch, activation, and provider lifecycle tests, and run the source baseline
 - `npm run verify` - lint, tests, generated-output verification, and dependency audit
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
@@ -85,7 +85,8 @@ checkout, and a bounded runtime.
 runs `npm run check:generated`, which compiles TypeScript and fails when the
 checked-in `out/` extension output differs from the generated result.
 `npm test` compiles TypeScript, runs executable Node tests for accepted and
-rejected alert messages and notification dispatch, and runs
+rejected alert messages, notification dispatch, extension registration, and
+sidebar provider lifecycle behavior, and runs
 `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, base URI and form submissions disabled, bounded message
@@ -98,6 +99,9 @@ The message parser lives in `src/alertMessage.ts`, so its normalization and
 rejection behavior can be tested without loading a VS Code extension host.
 The notification boundary lives in `src/alertMessageHandler.ts`, so tests also
 verify that only accepted messages produce one normalized notification.
+The provider lives in `src/sidebarProvider.ts`, so deterministic tests also
+verify media-only resource scoping, CSP-backed HTML, contributed-view
+registration, and disposal of each message listener with its owning view.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -129,6 +133,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Alert messages must use plain object prototypes before field validation runs.
 - Alert dispatch tests require accepted messages to emit exactly one normalized
   notification and rejected messages to emit none.
+- Sidebar provider tests require view-owned message subscriptions to be
+  disposed when the corresponding webview is disposed.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
   verification.
 - Local `.vscode/` workspace files are ignored so editor launch settings and

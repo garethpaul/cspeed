@@ -40,6 +40,9 @@ Helpful reports include:
   without invoking getters or propagating exceptions into extension dispatch.
 - Webview alert parsing rejects Unicode bidirectional ordering controls before
   notification dispatch while preserving ordinary right-to-left script text.
+- Provider lifecycle tests keep webview resources scoped to checked-in media,
+  retain the nonce CSP, and dispose message listeners when their owning view
+  closes.
 
 ## Service and API Notes
 

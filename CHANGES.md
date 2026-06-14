@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-14
+
+- Extracted the sidebar provider behind typed VS Code dependencies and added
+  deterministic activation, resource-scoping, HTML, dispatch, and lifecycle
+  tests.
+- Bound each webview message listener to its owning view's disposal lifecycle.
+
 ## 2026-06-13
 
 - Rejected Unicode bidirectional ordering controls in webview alert text while

@@ -33,7 +33,9 @@
 
 ## Testing guidance
 
-- No dedicated test files were detected; treat `make check` as the minimum baseline.
+- Node tests cover alert parsing and dispatch plus extension registration and
+  sidebar provider lifecycle behavior; treat `make check` as the minimum
+  baseline.
 - Start with the narrowest relevant test or Make target, then run `make check` before handing off if the change is not documentation-only.
 - Keep README verification notes in sync when commands, fixtures, or supported toolchains change.
 
@@ -55,6 +57,8 @@
 - Webview alert text is trimmed, bounded, and kept on one notification line before the extension host displays it.
 - Webview alert parsing rejects bidirectional ordering controls before notification dispatch while preserving ordinary right-to-left text.
 - Alert messages must provide own `command` and `text` properties before the extension host reads or displays them.
+- Each provider message subscription must be disposed with its owning webview;
+  keep registration and lifecycle tests synchronized with provider changes.
 
 ## Agent workflow
 

@@ -6,6 +6,10 @@ PACKAGE_JSON="$ROOT_DIR/package.json"
 PACKAGE_LOCK="$ROOT_DIR/package-lock.json"
 SOURCE="$ROOT_DIR/src/extension.ts"
 OUTPUT="$ROOT_DIR/out/extension.js"
+PROVIDER_SOURCE="$ROOT_DIR/src/sidebarProvider.ts"
+PROVIDER_OUTPUT="$ROOT_DIR/out/sidebarProvider.js"
+PROVIDER_TEST="$ROOT_DIR/test/sidebarProvider.test.js"
+EXTENSION_TEST="$ROOT_DIR/test/extension.test.js"
 ALERT_SOURCE="$ROOT_DIR/src/alertMessage.ts"
 ALERT_OUTPUT="$ROOT_DIR/out/alertMessage.js"
 ALERT_TEST="$ROOT_DIR/test/alertMessage.test.js"
@@ -29,6 +33,7 @@ CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-bo
 CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-characters.md"
 ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
 BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
+PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
 
@@ -53,11 +58,15 @@ for path in \
   "src/alertMessage.ts" \
   "src/alertMessageHandler.ts" \
   "src/extension.ts" \
+  "src/sidebarProvider.ts" \
   "test/alertMessage.test.js" \
   "test/alertMessageHandler.test.js" \
+  "test/extension.test.js" \
+  "test/sidebarProvider.test.js" \
   "out/alertMessage.js" \
   "out/alertMessageHandler.js" \
   "out/extension.js" \
+  "out/sidebarProvider.js" \
   "scripts/check-baseline.sh" \
   "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
   "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
@@ -76,6 +85,7 @@ for path in \
   "docs/plans/2026-06-13-cspeed-alert-control-characters.md" \
   "docs/plans/2026-06-13-cspeed-alert-accessor-guards.md" \
   "docs/plans/2026-06-13-cspeed-alert-bidi-controls.md" \
+  "docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -199,48 +209,49 @@ for lock_contract in \
   fi
 done
 
-if ! grep -Fq "Content-Security-Policy" "$SOURCE"; then
+if ! grep -Fq "Content-Security-Policy" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview HTML must include a content security policy." >&2
   exit 1
 fi
 
-if ! grep -Fq "script-src 'nonce-" "$SOURCE"; then
+if ! grep -Fq "script-src 'nonce-" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview scripts must be constrained by a nonce." >&2
   exit 1
 fi
 
-if ! grep -Fq "base-uri 'none'" "$SOURCE" ||
-   ! grep -Fq "form-action 'none'" "$SOURCE"; then
+if ! grep -Fq "base-uri 'none'" "$PROVIDER_SOURCE" ||
+   ! grep -Fq "form-action 'none'" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview CSP must disable base URI and form submissions explicitly." >&2
   exit 1
 fi
 
-if ! grep -Fq "randomBytes(16).toString('base64')" "$SOURCE"; then
+if ! grep -Fq "randomBytes(16).toString('base64')" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview CSP nonce must be generated with Node crypto." >&2
   exit 1
 fi
 
-if grep -Fq "Math.random()" "$SOURCE"; then
+if grep -Fq "Math.random()" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview CSP nonce must not use Math.random." >&2
   exit 1
 fi
 
-if grep -Fq "onclick=" "$SOURCE"; then
+if grep -Fq "onclick=" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview HTML must not use inline event handlers." >&2
   exit 1
 fi
 
-if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'))" "$SOURCE"; then
+if ! grep -Fq "webview.asWebviewUri(" "$PROVIDER_SOURCE" ||
+   ! grep -Fq "this.dependencies.joinPath(this.extensionUri, 'media', 'main.js')" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview HTML must load its script through a scoped media URI." >&2
   exit 1
 fi
 
-if ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$SOURCE"; then
+if ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview script tags must keep the nonce on the external media script." >&2
   exit 1
 fi
 
-if ! grep -Fq "localResourceRoots: [vscode.Uri.joinPath(this._extensionUri, 'media')]" "$SOURCE"; then
+if ! grep -Fq "localResourceRoots: [this.dependencies.joinPath(this.extensionUri, 'media')]" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview local resource roots must be limited to media/." >&2
   exit 1
 fi
@@ -324,19 +335,19 @@ if ! grep -Fq "text.length === 0" "$ALERT_SOURCE"; then
 	exit 1
 fi
 
-if ! grep -Fq "Content-Security-Policy" "$OUTPUT"; then
+if ! grep -Fq "Content-Security-Policy" "$PROVIDER_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the CSP source." >&2
   exit 1
 fi
 
-if ! grep -Fq "base-uri 'none'" "$OUTPUT" ||
-   ! grep -Fq "form-action 'none'" "$OUTPUT"; then
+if ! grep -Fq "base-uri 'none'" "$PROVIDER_OUTPUT" ||
+   ! grep -Fq "form-action 'none'" "$PROVIDER_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with CSP navigation restrictions." >&2
   exit 1
 fi
 
-if ! grep -Fq "webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'))" "$OUTPUT" ||
-   ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$OUTPUT"; then
+if ! grep -Fq "webview.asWebviewUri(this.dependencies.joinPath(this.extensionUri, 'media', 'main.js'))" "$PROVIDER_OUTPUT" ||
+   ! grep -Fq '<script nonce="${nonce}" src="${scriptUri}"></script>' "$PROVIDER_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the external media script source." >&2
   exit 1
 fi
@@ -354,12 +365,50 @@ if ! grep -Fq "function parseAlertMessage(message)" "$ALERT_OUTPUT" ||
   exit 1
 fi
 
-if ! grep -Fq "import { dispatchAlertMessage } from './alertMessageHandler'" "$SOURCE" ||
-  ! grep -Fq "dispatchAlertMessage(message, text => vscode.window.showInformationMessage(text))" "$SOURCE" ||
-  ! grep -Fq 'require("./alertMessageHandler")' "$OUTPUT"; then
+if ! grep -Fq "import { SidebarProvider } from './sidebarProvider'" "$SOURCE" ||
+  ! grep -Fq "import { dispatchAlertMessage } from './alertMessageHandler'" "$PROVIDER_SOURCE" ||
+  ! grep -Fq "dispatchAlertMessage(message, text => this.dependencies.showInformationMessage(text))" "$PROVIDER_SOURCE" ||
+  ! grep -Fq 'require("./sidebarProvider")' "$OUTPUT" ||
+  ! grep -Fq 'require("./alertMessageHandler")' "$PROVIDER_OUTPUT"; then
   printf '%s\n' "Extension source and output must use the tested alert dispatch module." >&2
   exit 1
 fi
+
+if ! grep -Fq "vscode.window.registerWebviewViewProvider('sidebarWebviewView', provider)" "$SOURCE" ||
+  ! grep -Fq "joinPath: vscode.Uri.joinPath" "$SOURCE" ||
+  ! grep -Fq "showInformationMessage: text => vscode.window.showInformationMessage(text)" "$SOURCE"; then
+  printf '%s\n' "Extension activation must register the declared view with explicit provider dependencies." >&2
+  exit 1
+fi
+
+if ! grep -Fq "const messageSubscription = webviewView.webview.onDidReceiveMessage" "$PROVIDER_SOURCE" ||
+  ! grep -Fq "webviewView.onDidDispose(() => messageSubscription.dispose())" "$PROVIDER_SOURCE" ||
+  ! grep -Fq "messageSubscription.dispose()" "$PROVIDER_OUTPUT"; then
+  printf '%s\n' "Sidebar provider must dispose each message listener with its owning view." >&2
+  exit 1
+fi
+
+for provider_test_contract in \
+  "resolves a script-enabled media-scoped webview with a nonce CSP" \
+  "dispatches only validated alerts to the notification dependency" \
+  "disposes the message listener with its owning webview" \
+  "assert.deepEqual(harness.notifications, ['Ready'])" \
+  "assert.equal(harness.getMessageDisposals(), 1)"; do
+  if ! grep -Fq "$provider_test_contract" "$PROVIDER_TEST"; then
+    printf '%s\n' "Sidebar provider tests must preserve lifecycle contract: $provider_test_contract" >&2
+    exit 1
+  fi
+done
+
+for extension_test_contract in \
+  "activation registers and retains the contributed sidebar provider" \
+  "assert.equal(registered.viewId, 'sidebarWebviewView')" \
+  "assert.deepEqual(context.subscriptions, [registration])"; do
+  if ! grep -Fq "$extension_test_contract" "$EXTENSION_TEST"; then
+    printf '%s\n' "Extension activation tests must preserve registration contract: $extension_test_contract" >&2
+    exit 1
+  fi
+done
 
 if ! grep -Fq "import { parseAlertMessage } from './alertMessage'" "$ALERT_HANDLER_SOURCE" ||
   ! grep -Fq "function dispatchAlertMessage(message, showAlert)" "$ALERT_HANDLER_OUTPUT" ||
@@ -442,7 +491,7 @@ if ! grep -Fq "status: completed" "$CONTROL_CHARACTER_PLAN" ||
   exit 1
 fi
 
-if ! grep -Fq 'require("crypto")' "$OUTPUT" || ! grep -Fq "crypto_1.randomBytes)(16).toString('base64')" "$OUTPUT"; then
+if ! grep -Fq 'require("crypto")' "$PROVIDER_OUTPUT" || ! grep -Fq "crypto_1.randomBytes)(16).toString('base64')" "$PROVIDER_OUTPUT"; then
   printf '%s\n' "Compiled output must stay synchronized with the crypto nonce source." >&2
   exit 1
 fi
@@ -698,5 +747,18 @@ if ! grep -Fq "status: completed" "$PARSER_TEST_PLAN" ||
   printf '%s\n' "Alert parser test plan must be completed and record npm test verification." >&2
   exit 1
 fi
+
+for provider_plan_contract in \
+  "Status: Completed" \
+  "Verification: Completed" \
+  "Node 22.22.2 and Node 24.16.0" \
+  "Ten focused hostile mutations" \
+  "no actionable issues" \
+  "This change claims no browser or live VS Code Extension Host execution"; do
+  if ! grep -Fq "$provider_plan_contract" "$PROVIDER_LIFECYCLE_PLAN"; then
+    printf '%s\n' "Provider lifecycle plan must record completed evidence: $provider_plan_contract" >&2
+    exit 1
+  fi
+done
 
 printf '%s\n' "CSpeed webview baseline checks passed."

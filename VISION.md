@@ -35,6 +35,8 @@ Priority:
 - Reject non-record alert payload prototypes before field validation
 - Keep the pure webview alert parser covered by executable acceptance and
   rejection tests
+- Keep activation, provider resolution, notification dispatch, and view-owned
+  listener cleanup covered by deterministic lifecycle tests
 - Keep local VS Code workspace metadata out of the shared project baseline
 - Keep the npm-backed `make check` baseline running in GitHub Actions with a
   credential-free checkout
@@ -42,7 +44,8 @@ Priority:
 Next priorities:
 
 - Align the README with the actual sidebar webview implementation
-- Add a small test or compile gate for CI
+- Exercise the sidebar in a live VS Code Extension Host when graphical
+  integration coverage is practical
 - Strengthen webview content security policy before adding richer UI
 - Keep package metadata and contributed commands/views accurate
 

@@ -1,6 +1,6 @@
 # Exercise the Sidebar Provider Lifecycle
 
-Status: In Progress
+Status: Completed
 
 ## Context
 
@@ -67,14 +67,32 @@ boundary and completed verification.
 
 ## Verification
 
-Verification: Pending
+Verification: Completed
 
-- Run TypeScript compilation, zero-warning lint, Node tests, generated-output
-  comparison, source contracts, dependency audit, and full `make check`.
-- Run focused hostile mutations against registration, resource scoping,
-  dispatch, rejection, disposal, test wiring, and plan completion evidence.
-- Inspect the exact diff, generated output, artifacts, and credential-shaped
-  additions before committing.
+- Node 22.22.2 and Node 24.16.0 each pass clean lockfile installation,
+  zero-warning lint, all 17 Node tests, source contracts, generated-output
+  comparison, and a zero-vulnerability moderate-severity audit through full
+  `make check`.
+- Ten focused hostile mutations alter view registration, registration
+  retention, resource scoping, validated dispatch, listener disposal,
+  notification/disposal/activation assertions, or test wiring; every mutation
+  is rejected.
+- TypeScript, JavaScript, shell, whitespace, exact-diff, generated-output,
+  artifact, and credential-shaped addition audits pass.
+- Plan-aware correctness, testing, maintainability, project-standards,
+  security, and reliability review found no actionable issues.
+- `agent-browser` was unavailable and the project exposes no HTTP route; no
+  browser or live VS Code Extension Host execution is claimed.
+
+## Work Completed
+
+- Extracted the sidebar provider behind the two VS Code dependencies needed by
+  deterministic tests while keeping activation as the thin runtime adapter.
+- Preserved CSP-backed HTML, cryptographic nonce generation, scoped media
+  resources, the declared view identifier, and validated alert dispatch.
+- Bound each webview message subscription to its owning view's disposal event.
+- Added compiled-output tests for activation registration, provider resolution,
+  accepted and rejected notifications, and listener cleanup.
 
 ## Scope Boundaries
 
@@ -84,3 +102,5 @@ Verification: Pending
   focused stage.
 - Do not claim live VS Code rendering, sidebar interaction, or notification UI
   coverage from the deterministic Node suite.
+
+This change claims no browser or live VS Code Extension Host execution.
