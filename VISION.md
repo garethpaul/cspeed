@@ -43,6 +43,8 @@ Priority:
 
 Next priorities:
 
+- Execute the CSpeed Extension Host verification matrix against an exact commit
+  in isolated VS Code profiles
 - Align the README with the actual sidebar webview implementation
 - Exercise the sidebar in a live VS Code Extension Host when graphical
   integration coverage is practical

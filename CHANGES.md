@@ -2,6 +2,8 @@
 
 ## 2026-06-14
 
+- Added an exact-head VS Code Extension Host verification matrix with
+  privacy-safe evidence fields and every integration row explicitly unexecuted.
 - Extracted the sidebar provider behind typed VS Code dependencies and added
   deterministic activation, resource-scoping, HTML, dispatch, and lifecycle
   tests.

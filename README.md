@@ -105,6 +105,11 @@ registration, and disposal of each message listener with its owning view.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
+Use [`EXTENSION_HOST_VERIFICATION.md`](EXTENSION_HOST_VERIFICATION.md) to
+record exact-head VS Code desktop and rendered sidebar evidence. Keep
+unavailable integration scenarios as explicit unexecuted rows rather than
+treating Node tests or compiled-output checks as Extension Host execution.
+
 ## Configuration and Secrets
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.

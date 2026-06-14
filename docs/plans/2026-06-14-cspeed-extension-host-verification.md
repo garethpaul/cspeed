@@ -1,6 +1,6 @@
 # CSpeed Extension Host Verification Matrix
 
-Status: In Progress
+Status: Completed
 
 ## Problem
 
@@ -34,4 +34,9 @@ contracts inside a live VS Code Extension Host and rendered sidebar webview.
 
 ## Verification
 
-- Pending implementation and bounded repository validation.
+- `sh -n scripts/check-baseline.sh` and the focused baseline checker passed.
+- Clean pinned installs and `make check` passed under Node 22 and Node 24 from
+  the repository and an external working directory.
+- Twelve isolated hostile mutations of the checklist, guidance, and completed
+  plan contracts were rejected by `scripts/check-baseline.sh`.
+- No browser, VS Code desktop, Extension Host, rendered webview, notification, view disposal, multi-window, or workspace trust scenario was executed; every integration row remains `not run`.

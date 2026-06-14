@@ -34,6 +34,7 @@ CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-cha
 ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
 BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
+EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
 
@@ -757,6 +758,57 @@ for provider_plan_contract in \
   "This change claims no browser or live VS Code Extension Host execution"; do
   if ! grep -Fq "$provider_plan_contract" "$PROVIDER_LIFECYCLE_PLAN"; then
     printf '%s\n' "Provider lifecycle plan must record completed evidence: $provider_plan_contract" >&2
+    exit 1
+  fi
+done
+
+for required_host_path in "$ROOT_DIR/EXTENSION_HOST_VERIFICATION.md" "$EXTENSION_HOST_PLAN"; do
+  if [ ! -f "$required_host_path" ]; then
+    printf '%s\n' "Required Extension Host verification file is missing: ${required_host_path#"$ROOT_DIR/"}" >&2
+    exit 1
+  fi
+done
+
+for host_contract in \
+  'commit SHA and pull request' \
+  'synthetic empty workspace and synthetic alert text' \
+  'Install exact-head extension' \
+  'Activation by contributed view' \
+  'Sidebar view render' \
+  'CSP and media loading' \
+  'Valid alert notification' \
+  'Control-character alert' \
+  'Bidirectional-control alert' \
+  'Hostile object shape' \
+  'View disposal' \
+  'View reopen' \
+  'Extension Host reload' \
+  'Multiple windows' \
+  'Restricted workspace' \
+  'Do not convert `not run` into passing evidence.' \
+  'usernames, filesystem paths, workspace contents' \
+  'every VS Code, sidebar, webview, notification, disposal, and workspace row as unexecuted'; do
+  if ! grep -Fq "$host_contract" "$ROOT_DIR/EXTENSION_HOST_VERIFICATION.md"; then
+    printf '%s\n' "Extension Host checklist must keep contract: $host_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq 'EXTENSION_HOST_VERIFICATION.md' "$README" || \
+   ! grep -Fq 'explicit unexecuted rows' "$README" || \
+   ! grep -Fq 'CSpeed Extension Host verification matrix' "$ROOT_DIR/VISION.md" || \
+   ! grep -Fq 'every integration row explicitly unexecuted' "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' 'Project guidance must document the unexecuted Extension Host matrix.' >&2
+  exit 1
+fi
+
+for host_plan_contract in \
+  'Status: Completed' \
+  'make check' \
+  'hostile mutations' \
+  'No browser, VS Code desktop, Extension Host, rendered webview, notification, view disposal, multi-window, or workspace trust scenario was executed'; do
+  if ! grep -Fq "$host_plan_contract" "$EXTENSION_HOST_PLAN"; then
+    printf '%s\n' "Extension Host plan must keep completion evidence: $host_plan_contract" >&2
     exit 1
   fi
 done
