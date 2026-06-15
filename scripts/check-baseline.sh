@@ -33,6 +33,7 @@ CHECKOUT_CREDENTIAL_PLAN="$ROOT_DIR/docs/plans/2026-06-12-checkout-credential-bo
 CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-characters.md"
 ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
 BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
+FORMAT_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-invisible-format-controls.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
 EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
@@ -87,6 +88,7 @@ for path in \
   "docs/plans/2026-06-13-cspeed-alert-accessor-guards.md" \
   "docs/plans/2026-06-13-cspeed-alert-bidi-controls.md" \
   "docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md" \
+  "docs/plans/2026-06-15-cspeed-invisible-format-controls.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -599,6 +601,42 @@ if ! grep -Fq "Unicode bidirectional ordering controls" "$README" ||
   printf '%s\n' "Maintenance docs must record the bidi-control alert boundary." >&2
   exit 1
 fi
+
+for source_contract in \
+  'codePoint === 0x00ad' \
+  'codePoint >= 0x200b && codePoint <= 0x200d' \
+  'codePoint === 0x2060' \
+  'codePoint === 0xfeff'; do
+  if ! grep -Fq "$source_contract" "$ALERT_SOURCE" ||
+    ! grep -Fq "$source_contract" "$ALERT_OUTPUT"; then
+    printf '%s\n' "Alert parser source and output must reject invisible format controls: $source_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "rejects invisible Unicode format controls" "$ALERT_TEST" ||
+  ! grep -Fq "Ready\\u200bNow" "$ALERT_HANDLER_TEST" ||
+  ! grep -Fq "invisible Unicode format controls" "$README" ||
+  ! grep -Fq "invisible Unicode format controls" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Rejected invisible Unicode format controls" "$ROOT_DIR/CHANGES.md" ||
+  ! grep -Fq "Reject invisible Unicode format controls" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "rejects invisible Unicode format controls before notification dispatch" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Tests and maintenance docs must record the invisible format-control boundary." >&2
+  exit 1
+fi
+
+for plan_contract in \
+  'status: completed' \
+  '## Status: Completed' \
+  '## Work Completed' \
+  '## Verification Completed' \
+  'hostile mutations were rejected' \
+  'A VS Code Extension Host was not launched'; do
+  if ! grep -Fq "$plan_contract" "$FORMAT_CONTROL_PLAN"; then
+    printf '%s\n' "Invisible format-control plan must keep completed evidence: $plan_contract" >&2
+    exit 1
+  fi
+done
 
 for plan_contract in \
   'status: completed' \

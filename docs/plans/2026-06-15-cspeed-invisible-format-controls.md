@@ -1,13 +1,13 @@
 ---
 title: CSpeed Invisible Format Control Guard
 type: security
-status: planned
+status: completed
 date: 2026-06-15
 ---
 
 # CSpeed Invisible Format Control Guard
 
-## Status: Planned
+## Status: Completed
 
 ## Problem Frame
 
@@ -44,3 +44,23 @@ differently from the submitted value.
 - Zero-width joiners can be meaningful in natural-language shaping; this sample
   intentionally prioritizes unambiguous single-line notification text.
 - A VS Code Extension Host remains required for live notification verification.
+
+## Work Completed
+
+- Rejected soft hyphen, zero-width space/joiners, word joiner, and BOM before
+  alert normalization or dispatch.
+- Added parser and dispatch coverage while preserving ordinary Unicode and RTL
+  script acceptance.
+- Added source/output, test, documentation, and completed-plan contracts.
+
+## Verification Completed
+
+- TypeScript compilation and all 14 focused parser/dispatch tests passed.
+- Eight hostile mutations were rejected across all code-point groups, dispatch
+  coverage, documentation, plan status, and verification evidence.
+- Ephemeral Node `22` passed `npm run verify`, including lint, all 18 tests,
+  generated-output parity, the static baseline, and an audit with zero findings.
+- Repository-root and absolute-path `make check` passed with the same supported
+  Node `22` npm invocation.
+- A VS Code Extension Host was not launched; live sidebar notification rendering
+  remains covered by the existing verification matrix.

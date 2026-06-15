@@ -121,3 +121,18 @@ test('rejects Unicode bidirectional ordering controls', () => {
 		undefined
 	);
 });
+
+test('rejects invisible Unicode format controls', () => {
+	const formatControls = [
+		'\u00ad',
+		'\u200b',
+		'\u200c',
+		'\u200d',
+		'\u2060',
+		'\ufeff'
+	];
+
+	for (const control of formatControls) {
+		assert.equal(parseAlertMessage({ command: 'alert', text: `Ready${control}Now` }), undefined);
+	}
+});

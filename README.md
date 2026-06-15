@@ -128,8 +128,8 @@ treating Node tests or compiled-output checks as Extension Host execution.
 - The sidebar webview script is loaded from `media/main.js` under the same
   nonce-scoped content security policy.
 - Webview alert text is trimmed and bounded, while C0/C1 controls, Unicode line
-  separators, and Unicode bidirectional ordering controls are rejected before
-  the extension host displays it.
+  separators, Unicode bidirectional ordering controls, and invisible Unicode format controls
+  are rejected before the extension host displays it.
 - Alert messages must provide own `command` and `text` properties before the
   extension host reads or displays them.
 - Alert fields must be own data properties without invoking accessors, and
@@ -169,6 +169,8 @@ treating Node tests or compiled-output checks as Extension Host execution.
   extension-host notification dispatch coverage.
 - See `docs/plans/2026-06-13-cspeed-alert-bidi-controls.md` for the Unicode
   bidirectional ordering-control boundary.
+- See `docs/plans/2026-06-15-cspeed-invisible-format-controls.md` for the
+  invisible Unicode format-control boundary.
 
 ## Contributing
 

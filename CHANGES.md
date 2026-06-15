@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-15
+
+- Rejected invisible Unicode format controls in webview alert text before VS
+  Code notification dispatch.
+
 ## 2026-06-14
 
 - Added an exact-head VS Code Extension Host verification matrix with

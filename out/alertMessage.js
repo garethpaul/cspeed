@@ -6,13 +6,17 @@ function containsDisplayControlCharacter(text) {
         const codePoint = character.codePointAt(0);
         if (codePoint !== undefined &&
             (codePoint <= 0x1f ||
+                codePoint === 0x00ad ||
                 (codePoint >= 0x7f && codePoint <= 0x9f) ||
                 codePoint === 0x061c ||
+                (codePoint >= 0x200b && codePoint <= 0x200d) ||
                 (codePoint >= 0x200e && codePoint <= 0x200f) ||
                 codePoint === 0x2028 ||
                 codePoint === 0x2029 ||
                 (codePoint >= 0x202a && codePoint <= 0x202e) ||
-                (codePoint >= 0x2066 && codePoint <= 0x2069))) {
+                codePoint === 0x2060 ||
+                (codePoint >= 0x2066 && codePoint <= 0x2069) ||
+                codePoint === 0xfeff)) {
             return true;
         }
     }
