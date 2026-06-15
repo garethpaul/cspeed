@@ -2,6 +2,8 @@
 
 ## 2026-06-15
 
+- Rejected malformed lone UTF-16 surrogates in webview alert text while
+  preserving valid surrogate-pair emoji.
 - Rejected invisible Unicode format controls in webview alert text before VS
   Code notification dispatch.
 

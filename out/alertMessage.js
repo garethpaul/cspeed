@@ -8,6 +8,7 @@ function containsDisplayControlCharacter(text) {
             (codePoint <= 0x1f ||
                 codePoint === 0x00ad ||
                 (codePoint >= 0x7f && codePoint <= 0x9f) ||
+                (codePoint >= 0xd800 && codePoint <= 0xdfff) ||
                 codePoint === 0x061c ||
                 (codePoint >= 0x200b && codePoint <= 0x200d) ||
                 (codePoint >= 0x200e && codePoint <= 0x200f) ||

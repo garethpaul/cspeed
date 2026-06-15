@@ -1,13 +1,13 @@
 ---
 title: CSpeed Alert Lone Surrogate Guard
 type: security
-status: planned
+status: completed
 date: 2026-06-15
 ---
 
 # CSpeed Alert Lone Surrogate Guard
 
-## Status: Planned
+## Status: Completed
 
 ## Problem Frame
 
@@ -44,3 +44,23 @@ replacement characters. Valid surrogate pairs such as emoji must remain valid.
 ## Risks
 
 - A VS Code Extension Host remains required for live notification verification.
+
+## Work Completed
+
+- Rejected isolated high and low UTF-16 surrogate code units before alert
+  normalization or notification dispatch.
+- Preserved valid surrogate-pair emoji and existing ordinary Unicode/RTL text.
+- Added parser, dispatch, generated-output, documentation, and completed-plan
+  contracts.
+
+## Verification Completed
+
+- Supported Node `22.22.2` passed all 19 tests and `npm run verify`, including
+  lint, compilation, generated-output parity, the static baseline, and an audit
+  with zero findings.
+- Eight hostile mutations were rejected across source/output guards, high/low
+  surrogate tests, emoji preservation, dispatch coverage, documentation, plan
+  status, and verification evidence.
+- Repository and external-directory `make check` passed with Node `22.22.2`.
+- A VS Code Extension Host was not launched; live notification rendering
+  remains covered by the existing verification matrix.

@@ -18,6 +18,15 @@ test('accepts ordinary Unicode alert text', () => {
 	);
 });
 
+test('rejects lone UTF-16 surrogates while accepting valid pairs', () => {
+	assert.equal(parseAlertMessage({ command: 'alert', text: 'Ready\ud800Now' }), undefined);
+	assert.equal(parseAlertMessage({ command: 'alert', text: 'Ready\udfffNow' }), undefined);
+	assert.deepEqual(
+		parseAlertMessage({ command: 'alert', text: '  Ready \ud83d\ude80  ' }),
+		{ command: 'alert', text: 'Ready \ud83d\ude80' }
+	);
+});
+
 test('accepts right-to-left script text without ordering controls', () => {
 	assert.deepEqual(
 		parseAlertMessage({ command: 'alert', text: '  \u0645\u0631\u062d\u0628\u0627 \u05e9\u05dc\u05d5\u05dd  ' }),

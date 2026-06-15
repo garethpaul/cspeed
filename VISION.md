@@ -30,6 +30,7 @@ Priority:
   dispatch
 - Reject Unicode bidirectional ordering controls before notification dispatch
 - Reject invisible Unicode format controls before notification dispatch
+- Reject lone UTF-16 surrogates while preserving valid non-BMP characters
 - Require owned alert message fields before the extension host reads them
 - Reject accessor-backed and trap-throwing alert objects without side effects
 - Reject array alert payloads before field validation

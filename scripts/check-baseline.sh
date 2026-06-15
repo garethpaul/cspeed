@@ -34,6 +34,7 @@ CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-cha
 ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
 BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
 FORMAT_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-invisible-format-controls.md"
+LONE_SURROGATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
 EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
@@ -634,6 +635,40 @@ for plan_contract in \
   'A VS Code Extension Host was not launched'; do
   if ! grep -Fq "$plan_contract" "$FORMAT_CONTROL_PLAN"; then
     printf '%s\n' "Invisible format-control plan must keep completed evidence: $plan_contract" >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq 'codePoint >= 0xd800 && codePoint <= 0xdfff' "$ALERT_SOURCE" || \
+  ! grep -Fq 'codePoint >= 0xd800 && codePoint <= 0xdfff' "$ALERT_OUTPUT" || \
+  ! grep -Fq "rejects lone UTF-16 surrogates while accepting valid pairs" "$ALERT_TEST" || \
+  ! grep -Fq 'Ready\ud800Now' "$ALERT_TEST" || \
+  ! grep -Fq 'Ready\udfffNow' "$ALERT_TEST" || \
+  ! grep -Fq 'Ready \ud83d\ude80' "$ALERT_TEST" || \
+  ! grep -Fq 'Ready\ud800Now' "$ALERT_HANDLER_TEST" || \
+  ! grep -Fq 'Ready\udfffNow' "$ALERT_HANDLER_TEST"; then
+  printf '%s\n' "Parser, output, and dispatch tests must preserve the lone-surrogate boundary." >&2
+  exit 1
+fi
+
+if ! grep -Fq "lone UTF-16 surrogates" "$README" || \
+  ! grep -Fq "lone UTF-16 surrogates" "$ROOT_DIR/SECURITY.md" || \
+  ! grep -Fq "Rejected malformed lone UTF-16 surrogates" "$ROOT_DIR/CHANGES.md" || \
+  ! grep -Fq "Reject lone UTF-16 surrogates" "$ROOT_DIR/VISION.md" || \
+  ! grep -Fq "rejects lone UTF-16 surrogates" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Maintenance docs must record the lone-surrogate alert boundary." >&2
+  exit 1
+fi
+
+for plan_contract in \
+  'status: completed' \
+  '## Status: Completed' \
+  '## Work Completed' \
+  '## Verification Completed' \
+  'hostile mutations were rejected' \
+  'A VS Code Extension Host was not launched'; do
+  if ! grep -Fq "$plan_contract" "$LONE_SURROGATE_PLAN"; then
+    printf '%s\n' "Lone-surrogate plan must keep completed evidence: $plan_contract" >&2
     exit 1
   fi
 done
