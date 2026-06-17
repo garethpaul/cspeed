@@ -2,7 +2,7 @@
 title: CSpeed Lint Toolchain Patch Refresh
 type: maintenance
 date: 2026-06-17
-status: pending_hosted_verification
+status: completed
 execution: code
 ---
 
@@ -121,4 +121,8 @@ The full `make check` gate then passed from both the repository root and an
 external `/tmp` working directory under both supported Node versions. The
 checked-in `out/` files remained identical to compiler output.
 
-Exact-head hosted checks remain pending.
+Both exact-head push and pull-request Node 22/24 matrices passed. The verified
+commit was `fa5b13aa45d2e7f7a44111f1912cf1731af8955b`. Push run `27663023413`
+and pull-request run `27663027246` each completed successfully for Node 22 and
+Node 24. PR #10 remained open, clean, mergeable, and alert-free during the
+bounded exact-head verification snapshot.
