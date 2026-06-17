@@ -2,7 +2,7 @@
 title: CSpeed Invisible Operator Alert Guard
 type: security
 date: 2026-06-17
-status: pending_hosted_verification
+status: completed
 execution: code
 ---
 
@@ -63,5 +63,7 @@ findings. Six isolated hostile mutations were rejected across the source range,
 compiled range, parser endpoint fixture, dispatch endpoint fixture, maintained
 guidance, and pending hosted-evidence contract.
 
-The exact-head push and pull-request checks are the remaining verification
-boundary. Exact-head hosted checks remain pending.
+Exact implementation head `732e7e4790ff2aee771a8a644a5c968243e0ccf3`
+then passed Node 22 and Node 24 on push run `27725496762` and pull-request
+run `27725502029`. PR #11 remained open, clean, and mergeable, and the exact
+branch had zero open CodeQL alerts. No live VS Code Extension Host was launched.
