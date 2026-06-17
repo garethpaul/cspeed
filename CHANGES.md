@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-17
+
+- Refreshed the exact development baseline to ESLint 10.5.0,
+  typescript-eslint 8.61.1, and @types/node 22.19.21 with reviewed lockfile
+  artifacts; TypeScript 6 and Node 25 remain deferred compatibility changes.
+
 ## 2026-06-15
 
 - Rejected malformed lone UTF-16 surrogates in webview alert text while

@@ -15,6 +15,10 @@
 ## Development commands
 
 - Install dependencies: `npm ci`
+- Keep ESLint 10.5.0, typescript-eslint 8.61.1, and @types/node 22.19.21 exact
+  unless a focused dependency plan updates the lockfile and verification gate.
+- Treat TypeScript 6 and Node 25 as compatibility migrations, not incidental
+  package refreshes.
 - Full baseline: `make check`
 - Combined verification: `make verify`
 - Lint/static checks: `make lint`

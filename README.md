@@ -63,6 +63,11 @@ Detected npm scripts:
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
 
+The development baseline pins ESLint 10.5.0, typescript-eslint 8.61.1, and
+@types/node 22.19.21. TypeScript 6 and Node 25 remain separate compatibility
+work; this repository continues to support its declared Node 22/24 and
+TypeScript 5.9 contracts.
+
 ## Testing and Verification
 
 Run the local gate before changing extension or webview behavior:

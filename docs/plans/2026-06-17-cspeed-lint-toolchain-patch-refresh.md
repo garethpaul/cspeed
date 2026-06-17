@@ -2,7 +2,7 @@
 title: CSpeed Lint Toolchain Patch Refresh
 type: maintenance
 date: 2026-06-17
-status: planned
+status: pending_hosted_verification
 execution: code
 ---
 
@@ -110,4 +110,15 @@ without implying that registry latest majors are already supported.
 
 ## Verification Results
 
-Pending implementation and exact-head validation.
+Implementation is complete. A clean lockfile-pinned install with lifecycle
+scripts disabled passed lint, TypeScript compilation, all 19 Node tests,
+generated-output verification, and the moderate dependency audit with zero
+findings under Node `22.22.2` and Node `24.16.0`. Nineteen isolated hostile mutations were rejected
+across direct versions, reviewed lockfile artifacts, the complete
+`@typescript-eslint` family, and maintained guidance.
+
+The full `make check` gate then passed from both the repository root and an
+external `/tmp` working directory under both supported Node versions. The
+checked-in `out/` files remained identical to compiler output.
+
+Exact-head hosted checks remain pending.

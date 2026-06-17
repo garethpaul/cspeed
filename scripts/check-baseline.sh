@@ -35,6 +35,7 @@ ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guard
 BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
 FORMAT_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-invisible-format-controls.md"
 LONE_SURROGATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md"
+TOOLCHAIN_PATCH_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
 EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
@@ -90,6 +91,7 @@ for path in \
   "docs/plans/2026-06-13-cspeed-alert-bidi-controls.md" \
   "docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md" \
   "docs/plans/2026-06-15-cspeed-invisible-format-controls.md" \
+  "docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -184,12 +186,12 @@ for package_contract in \
   '"vscode": "^1.120.0"' \
   '"@eslint/js": "10.0.1"' \
   '"@stylistic/eslint-plugin": "5.10.0"' \
-  '"@types/node": "22.19.20"' \
+  '"@types/node": "22.19.21"' \
   '"@types/vscode": "1.120.0"' \
   '"@types/vscode-webview": "1.57.5"' \
-  '"eslint": "10.4.1"' \
+  '"eslint": "10.5.0"' \
   '"typescript": "5.9.3"' \
-  '"typescript-eslint": "8.61.0"'; do
+  '"typescript-eslint": "8.61.1"'; do
   if ! grep -Fq "$package_contract" "$PACKAGE_JSON"; then
     printf '%s\n' "package.json must keep dependency contract: $package_contract" >&2
     exit 1
@@ -201,17 +203,65 @@ if ! grep -Fq '"name": "cspeed"' "$PACKAGE_LOCK"; then
   exit 1
 fi
 
-for lock_contract in \
-  '"@eslint/js": "10.0.1"' \
-  '"@stylistic/eslint-plugin": "5.10.0"' \
-  '"eslint": "10.4.1"' \
-  '"typescript": "5.9.3"' \
-  '"typescript-eslint": "8.61.0"'; do
-  if ! grep -Fq "$lock_contract" "$PACKAGE_LOCK"; then
-    printf '%s\n' "package-lock.json must keep dependency contract: $lock_contract" >&2
-    exit 1
-  fi
-done
+node - "$PACKAGE_JSON" "$PACKAGE_LOCK" <<'NODE'
+const fs = require('node:fs');
+const { isDeepStrictEqual } = require('node:util');
+
+const packageJson = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const lock = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
+const root = lock.packages?.[''];
+const expectedDevDependencies = {
+  '@eslint/js': '10.0.1',
+  '@stylistic/eslint-plugin': '5.10.0',
+  '@types/node': '22.19.21',
+  '@types/vscode': '1.120.0',
+  '@types/vscode-webview': '1.57.5',
+  eslint: '10.5.0',
+  typescript: '5.9.3',
+  'typescript-eslint': '8.61.1',
+};
+
+if (!isDeepStrictEqual(packageJson.devDependencies, expectedDevDependencies)) {
+  throw new Error('package.json devDependencies must match the reviewed toolchain baseline');
+}
+
+if (!root || !isDeepStrictEqual(root.devDependencies, packageJson.devDependencies)) {
+  throw new Error('package-lock root devDependencies must exactly match package.json');
+}
+
+const artifacts = {
+  'node_modules/@types/node': ['22.19.21', 'https://registry.npmjs.org/@types/node/-/node-22.19.21.tgz', 'sha512-VMeFBSCKQKmm2swI2kW51SFusDqekC6q9trBCvJ/JliDchFSuoYYKN7yVNjPthP1HKZcx3U1gI/wTcEBjEFKTA=='],
+  'node_modules/@typescript-eslint/eslint-plugin': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.61.1.tgz', 'sha512-ZPlVl3PB3et/59Ne0fv/sci6ZXz4T4Hp4nTJ56i/Y0gR89ARb+KphojTq6j+56E5PIezmOIOOWyY+aWQFd+IkQ=='],
+  'node_modules/@typescript-eslint/parser': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.61.1.tgz', 'sha512-PJ5vePq5/ognBbrIcoC5+SHO5dfpeLPzP9FpLkzWrguoYQEeeSjlJpVwOpo1JRSTEi7dRcwNy4h4dzV70PqHcg=='],
+  'node_modules/@typescript-eslint/project-service': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.61.1.tgz', 'sha512-PrC4JYGmR241lYnfhmKGTXkFqv8+ymbTFgSAY0fVXpY82/QkMw5TZPl+vGzuDDU2QYJk9fIDOBTntF+yDv9LEA=='],
+  'node_modules/@typescript-eslint/scope-manager': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.61.1.tgz', 'sha512-L2bdIeoQS8FlKAvONAr20w6OcLXeB+qiDKbAooS9A0Ben+iSIkBef0FxqwKWYqt5sa0i4KJtxVyVmhMylKzF5w=='],
+  'node_modules/@typescript-eslint/tsconfig-utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.61.1.tgz', 'sha512-UN/H4di+OO7EWx2ovME+8t31YO+KVnK0RRKEHR3kOt21/Ay8BOq3M1OMvWs5vNiqcFCYGYoxK3MXPZzmMUE+yg=='],
+  'node_modules/@typescript-eslint/type-utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.61.1.tgz', 'sha512-GYRicKmVK0C4fsKgaACaknOUAq9Oa2kwsjnpFhFcS/5p4Ht5IP9OVLbgIgcK4SRk92nVHFluurg1lumD9dBcLw=='],
+  'node_modules/@typescript-eslint/types': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/types/-/types-8.61.1.tgz', 'sha512-G+CRlPqLv7Bz1IZVs03x5K59F1veqL0EJUROAdGhKsEq8qOiRiZbI+HUojPq5l0fEGOKModD9br6lObhB8zkoA=='],
+  'node_modules/@typescript-eslint/typescript-estree': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.61.1.tgz', 'sha512-u+oQD3BqYWPc8YV9Zab4vaJElJuwOLPRc10Jm1o/qS+6Qwen14HCWwx0Seo4LnSn2wxea2Ik8DxPt2/FHmuhrg=='],
+  'node_modules/@typescript-eslint/utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.61.1.tgz', 'sha512-1+P/3Dj6jvtybE1q0HQ6yBt/gq+oKJyLdEv4HdnqasaEXRSYCAsD59mXEVQnM/ULNdQxbX77tdG4jPRjIS6knA=='],
+  'node_modules/@typescript-eslint/visitor-keys': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.61.1.tgz', 'sha512-6fJ9MHWtK14C1DSkiMlHUSOmrVebL7150xZJBlJiL62jjhIA4JmOq6flwBgDxIdBKKdoiZRel+dfPD5MLfny3w=='],
+  'node_modules/eslint': ['10.5.0', 'https://registry.npmjs.org/eslint/-/eslint-10.5.0.tgz', 'sha512-1y+7C+vi12bUK1IpZeaV3gsH9fHLBmPvYmPx42pvT/E9yG0IC8g3PUZZgp0+JLJl7ZDK0flc2gc+Aw9dpCvIsQ=='],
+  'node_modules/typescript-eslint': ['8.61.1', 'https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.61.1.tgz', 'sha512-V7PayAfJokV3pEHgN7/v03D1SpujhRfQtYLbLIiBfDDncdg4PAiRBfoS4cnCANK4jmAPncczi59QO3afiXUlNw=='],
+};
+
+for (const [path, [version, resolved, integrity]] of Object.entries(artifacts)) {
+  const artifact = lock.packages?.[path];
+  if (!artifact || artifact.version !== version || artifact.resolved !== resolved || artifact.integrity !== integrity) {
+    throw new Error(`package-lock artifact drifted: ${path}`);
+  }
+}
+
+const expectedFamily = Object.keys(artifacts)
+  .filter((path) => path.startsWith('node_modules/@typescript-eslint/'))
+  .sort();
+const actualFamily = Object.keys(lock.packages || {})
+  .filter((path) => /^node_modules\/@typescript-eslint\/[^/]+$/.test(path))
+  .sort();
+if (JSON.stringify(actualFamily) !== JSON.stringify(expectedFamily)) {
+  throw new Error('package-lock @typescript-eslint family must remain complete and aligned');
+}
+NODE
 
 if ! grep -Fq "Content-Security-Policy" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview HTML must include a content security policy." >&2
@@ -635,6 +685,55 @@ for plan_contract in \
   'A VS Code Extension Host was not launched'; do
   if ! grep -Fq "$plan_contract" "$FORMAT_CONTROL_PLAN"; then
     printf '%s\n' "Invisible format-control plan must keep completed evidence: $plan_contract" >&2
+    exit 1
+  fi
+done
+
+for toolchain_doc_contract in \
+  'ESLint 10.5.0' \
+  'typescript-eslint 8.61.1' \
+  '@types/node 22.19.21' \
+  'TypeScript 6' \
+  'Node 25'; do
+  for maintained_doc in "$README" "$ROOT_DIR/AGENTS.md" "$ROOT_DIR/SECURITY.md" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
+    if ! grep -Fq "$toolchain_doc_contract" "$maintained_doc"; then
+      printf '%s\n' "Maintained guidance must record toolchain contract '$toolchain_doc_contract' in ${maintained_doc#"$ROOT_DIR/"}." >&2
+      exit 1
+    fi
+  done
+done
+
+toolchain_plan_status=$(sed -n 's/^status: //p' "$TOOLCHAIN_PATCH_PLAN")
+case "$toolchain_plan_status" in
+  pending_hosted_verification)
+    if ! grep -Fq 'Exact-head hosted checks remain pending.' "$TOOLCHAIN_PATCH_PLAN"; then
+      printf '%s\n' "Pending toolchain plan must record pending exact-head hosted checks." >&2
+      exit 1
+    fi
+    ;;
+  completed)
+    for plan_contract in \
+      'Both exact-head push and pull-request Node 22/24 matrices passed.' \
+      'isolated hostile mutations were rejected'; do
+      if ! grep -Fq "$plan_contract" "$TOOLCHAIN_PATCH_PLAN"; then
+        printf '%s\n' "Completed toolchain plan must retain verification evidence: $plan_contract" >&2
+        exit 1
+      fi
+    done
+    ;;
+  *)
+    printf '%s\n' "Toolchain patch plan must be pending hosted verification or completed." >&2
+    exit 1
+    ;;
+esac
+
+for plan_contract in \
+  'Node `22.22.2` and Node `24.16.0`' \
+  'lockfile-pinned install' \
+  'make check' \
+  'isolated hostile mutations were rejected'; do
+  if ! grep -Fq "$plan_contract" "$TOOLCHAIN_PATCH_PLAN"; then
+    printf '%s\n' "Toolchain patch plan must retain local verification evidence: $plan_contract" >&2
     exit 1
   fi
 done
