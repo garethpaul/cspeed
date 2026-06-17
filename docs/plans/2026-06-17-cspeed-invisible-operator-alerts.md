@@ -2,7 +2,7 @@
 title: CSpeed Invisible Operator Alert Guard
 type: security
 date: 2026-06-17
-status: in_progress
+status: pending_hosted_verification
 execution: code
 ---
 
@@ -49,4 +49,19 @@ notifications visually ambiguous.
 
 ## Verification Results
 
-Implementation and verification are pending.
+The parser now rejects the contiguous `U+2061` through `U+2064` range, parser
+tests cover every code point, dispatch tests prove rejected alerts emit no
+notification, and the checked-in JavaScript was regenerated from TypeScript.
+Under Node 22, a lifecycle-script-free install reported zero vulnerabilities,
+compilation passed, and all 16 focused parser and dispatch tests passed.
+
+The complete `make check` gate passed from the repository and an external
+working directory under Node `22.22.2` and Node `24.16.0`. Each run passed
+zero-warning lint, TypeScript compilation, all 20 tests, the source and
+generated-output contracts, and the moderate dependency audit with zero
+findings. Six isolated hostile mutations were rejected across the source range,
+compiled range, parser endpoint fixture, dispatch endpoint fixture, maintained
+guidance, and pending hosted-evidence contract.
+
+The exact-head push and pull-request checks are the remaining verification
+boundary. Exact-head hosted checks remain pending.

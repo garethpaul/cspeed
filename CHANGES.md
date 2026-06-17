@@ -2,6 +2,8 @@
 
 ## 2026-06-17
 
+- Rejected Unicode invisible operators in webview alert text before VS Code
+  notification dispatch.
 - Refreshed the exact development baseline to ESLint 10.5.0,
   typescript-eslint 8.61.1, and @types/node 22.19.21 with reviewed lockfile
   artifacts; TypeScript 6 and Node 25 remain deferred compatibility changes.

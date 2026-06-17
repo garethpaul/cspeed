@@ -177,6 +177,8 @@ treating Node tests or compiled-output checks as Extension Host execution.
   bidirectional ordering-control boundary.
 - See `docs/plans/2026-06-15-cspeed-invisible-format-controls.md` for the
   invisible Unicode format-control boundary.
+- See `docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md` for the
+  Unicode invisible operators notification boundary.
 - See `docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md` for the malformed
   UTF-16 alert boundary.
 

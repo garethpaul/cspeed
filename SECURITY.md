@@ -42,6 +42,8 @@ Helpful reports include:
   notification dispatch while preserving ordinary right-to-left script text.
 - Webview alert parsing rejects invisible Unicode format controls before notification
   dispatch so rendered and copied alert text remain unambiguous.
+- Webview alert parsing rejects Unicode invisible operators before notification
+  dispatch so arithmetic-looking alert text cannot hide semantic separators.
 - Webview alert parsing rejects lone UTF-16 surrogates while preserving valid
   surrogate-pair characters such as emoji.
 - Provider lifecycle tests keep webview resources scoped to checked-in media,

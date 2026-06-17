@@ -19,6 +19,7 @@ function containsDisplayControlCharacter(text: string): boolean {
 				codePoint === 0x2029 ||
 				(codePoint >= 0x202a && codePoint <= 0x202e) ||
 				codePoint === 0x2060 ||
+				(codePoint >= 0x2061 && codePoint <= 0x2064) ||
 				(codePoint >= 0x2066 && codePoint <= 0x2069) ||
 				codePoint === 0xfeff)
 		) {

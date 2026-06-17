@@ -34,6 +34,7 @@ CONTROL_CHARACTER_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-control-cha
 ACCESSOR_GUARD_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-accessor-guards.md"
 BIDI_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-13-cspeed-alert-bidi-controls.md"
 FORMAT_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-invisible-format-controls.md"
+INVISIBLE_OPERATOR_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md"
 LONE_SURROGATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md"
 TOOLCHAIN_PATCH_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
@@ -91,6 +92,7 @@ for path in \
   "docs/plans/2026-06-13-cspeed-alert-bidi-controls.md" \
   "docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md" \
   "docs/plans/2026-06-15-cspeed-invisible-format-controls.md" \
+  "docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md" \
   "docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
@@ -688,6 +690,63 @@ for plan_contract in \
     exit 1
   fi
 done
+
+for invisible_operator_source in "$ALERT_SOURCE" "$ALERT_OUTPUT"; do
+  if ! grep -Fq 'codePoint >= 0x2061 && codePoint <= 0x2064' "$invisible_operator_source"; then
+    printf '%s\n' "Alert parser source and output must reject Unicode invisible operators." >&2
+    exit 1
+  fi
+done
+
+if ! grep -Fq "const invisibleOperators = ['\\u2061', '\\u2062', '\\u2063', '\\u2064']" "$ALERT_TEST" ||
+  ! grep -Fq "{ command: 'alert', text: 'Ready\\u2061Now' }" "$ALERT_HANDLER_TEST" ||
+  ! grep -Fq "{ command: 'alert', text: 'Ready\\u2064Now' }" "$ALERT_HANDLER_TEST"; then
+  printf '%s\n' "Parser and dispatch tests must cover all Unicode invisible operators." >&2
+  exit 1
+fi
+
+for invisible_operator_doc in "$README" "$ROOT_DIR/AGENTS.md" "$ROOT_DIR/SECURITY.md" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
+  if ! grep -Fq 'Unicode invisible operators' "$invisible_operator_doc"; then
+    printf '%s\n' "${invisible_operator_doc#"$ROOT_DIR/"} must document the Unicode invisible operators boundary." >&2
+    exit 1
+  fi
+done
+
+for invisible_operator_plan_contract in \
+  'U+2061' \
+  'U+2064' \
+  'Node 22' \
+  'Node 24' \
+  'exact-head push and pull-request checks'; do
+  if ! grep -Fq "$invisible_operator_plan_contract" "$INVISIBLE_OPERATOR_PLAN"; then
+    printf '%s\n' "Invisible operator plan must preserve completed evidence: $invisible_operator_plan_contract" >&2
+    exit 1
+  fi
+done
+
+invisible_operator_plan_status=$(sed -n 's/^status: //p' "$INVISIBLE_OPERATOR_PLAN")
+case "$invisible_operator_plan_status" in
+  pending_hosted_verification)
+    if ! grep -Fq 'Exact-head hosted checks remain pending.' "$INVISIBLE_OPERATOR_PLAN"; then
+      printf '%s\n' "Pending invisible operator plan must record pending hosted checks." >&2
+      exit 1
+    fi
+    ;;
+  completed)
+    if grep -Fq 'Exact-head hosted checks remain pending.' "$INVISIBLE_OPERATOR_PLAN"; then
+      printf '%s\n' "Completed invisible operator plan must not claim pending hosted checks." >&2
+      exit 1
+    fi
+    if ! grep -Fq 'hostile mutations were rejected' "$INVISIBLE_OPERATOR_PLAN"; then
+      printf '%s\n' "Completed invisible operator plan must record mutation evidence." >&2
+      exit 1
+    fi
+    ;;
+  *)
+    printf '%s\n' "Invisible operator plan status must be pending_hosted_verification or completed." >&2
+    exit 1
+    ;;
+esac
 
 for toolchain_doc_contract in \
   'ESLint 10.5.0' \

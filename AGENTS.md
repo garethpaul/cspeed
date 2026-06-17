@@ -61,6 +61,7 @@
 - Webview alert text is trimmed, bounded, and kept on one notification line before the extension host displays it.
 - Webview alert parsing rejects bidirectional ordering controls before notification dispatch while preserving ordinary right-to-left text.
 - Webview alert parsing rejects invisible Unicode format controls before notification dispatch.
+- Webview alert parsing rejects Unicode invisible operators before notification dispatch.
 - Webview alert parsing rejects lone UTF-16 surrogates while preserving valid surrogate pairs.
 - Alert messages must provide own `command` and `text` properties before the extension host reads or displays them.
 - Each provider message subscription must be disposed with its owning webview;

@@ -145,3 +145,11 @@ test('rejects invisible Unicode format controls', () => {
 		assert.equal(parseAlertMessage({ command: 'alert', text: `Ready${control}Now` }), undefined);
 	}
 });
+
+test('rejects Unicode invisible operators', () => {
+	const invisibleOperators = ['\u2061', '\u2062', '\u2063', '\u2064'];
+
+	for (const control of invisibleOperators) {
+		assert.equal(parseAlertMessage({ command: 'alert', text: `Ready${control}Now` }), undefined);
+	}
+});
