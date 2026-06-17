@@ -125,4 +125,5 @@ Both exact-head push and pull-request Node 22/24 matrices passed. The verified
 commit was `fa5b13aa45d2e7f7a44111f1912cf1731af8955b`. Push run `27663023413`
 and pull-request run `27663027246` each completed successfully for Node 22 and
 Node 24. PR #10 remained open, clean, mergeable, and alert-free during the
-bounded exact-head verification snapshot.
+bounded exact-head verification snapshot. The completed-plan contract pins the
+verified implementation head and both canonical run identifiers.

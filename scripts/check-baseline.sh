@@ -714,7 +714,10 @@ case "$toolchain_plan_status" in
   completed)
     for plan_contract in \
       'Both exact-head push and pull-request Node 22/24 matrices passed.' \
-      'isolated hostile mutations were rejected'; do
+      'isolated hostile mutations were rejected' \
+      'fa5b13aa45d2e7f7a44111f1912cf1731af8955b' \
+      '27663023413' \
+      '27663027246'; do
       if ! grep -Fq "$plan_contract" "$TOOLCHAIN_PATCH_PLAN"; then
         printf '%s\n' "Completed toolchain plan must retain verification evidence: $plan_contract" >&2
         exit 1
