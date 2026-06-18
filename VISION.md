@@ -43,9 +43,9 @@ Priority:
 - Keep local VS Code workspace metadata out of the shared project baseline
 - Keep the npm-backed `make check` baseline running in GitHub Actions with a
   credential-free checkout
-- Keep ESLint 10.5.0, typescript-eslint 8.61.1, and @types/node 22.19.21
-  reproducibly pinned while TypeScript 6 and Node 25 remain dedicated
-  compatibility efforts
+- Keep TypeScript 6.0.3, ESLint 10.5.0, typescript-eslint 8.61.1, and
+  @types/node 22.19.21 reproducibly pinned with explicit Node and VS Code type
+  roots while Node 25 remains a dedicated compatibility effort
 
 Next priorities:
 

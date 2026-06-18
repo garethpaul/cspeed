@@ -1,12 +1,17 @@
 # Changes
 
+## 2026-06-18
+
+- Migrated the checked-in extension build to TypeScript 6.0.3 with explicit
+  Node and VS Code type roots while preserving Node 22/24 and VS Code 1.120.
+
 ## 2026-06-17
 
 - Rejected Unicode invisible operators in webview alert text before VS Code
   notification dispatch.
 - Refreshed the exact development baseline to ESLint 10.5.0,
   typescript-eslint 8.61.1, and @types/node 22.19.21 with reviewed lockfile
-  artifacts; TypeScript 6 and Node 25 remain deferred compatibility changes.
+  artifacts; Node 25 remains a deferred compatibility change.
 
 ## 2026-06-15
 

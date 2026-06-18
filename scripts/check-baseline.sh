@@ -4,6 +4,7 @@ set -eu
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 PACKAGE_JSON="$ROOT_DIR/package.json"
 PACKAGE_LOCK="$ROOT_DIR/package-lock.json"
+TSCONFIG="$ROOT_DIR/tsconfig.json"
 SOURCE="$ROOT_DIR/src/extension.ts"
 OUTPUT="$ROOT_DIR/out/extension.js"
 PROVIDER_SOURCE="$ROOT_DIR/src/sidebarProvider.ts"
@@ -37,6 +38,7 @@ FORMAT_CONTROL_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-invisible-format-con
 INVISIBLE_OPERATOR_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md"
 LONE_SURROGATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md"
 TOOLCHAIN_PATCH_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md"
+TYPESCRIPT_6_PLAN="$ROOT_DIR/docs/plans/2026-06-18-001-chore-typescript-6-migration-plan.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
 EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
@@ -59,6 +61,7 @@ for path in \
   "README.md" \
   "package.json" \
   "package-lock.json" \
+  "tsconfig.json" \
   "media/main.js" \
   "src/alertMessage.ts" \
   "src/alertMessageHandler.ts" \
@@ -94,6 +97,7 @@ for path in \
   "docs/plans/2026-06-15-cspeed-invisible-format-controls.md" \
   "docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md" \
   "docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md" \
+  "docs/plans/2026-06-18-001-chore-typescript-6-migration-plan.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -192,7 +196,7 @@ for package_contract in \
   '"@types/vscode": "1.120.0"' \
   '"@types/vscode-webview": "1.57.5"' \
   '"eslint": "10.5.0"' \
-  '"typescript": "5.9.3"' \
+  '"typescript": "6.0.3"' \
   '"typescript-eslint": "8.61.1"'; do
   if ! grep -Fq "$package_contract" "$PACKAGE_JSON"; then
     printf '%s\n' "package.json must keep dependency contract: $package_contract" >&2
@@ -219,7 +223,7 @@ const expectedDevDependencies = {
   '@types/vscode': '1.120.0',
   '@types/vscode-webview': '1.57.5',
   eslint: '10.5.0',
-  typescript: '5.9.3',
+  typescript: '6.0.3',
   'typescript-eslint': '8.61.1',
 };
 
@@ -244,6 +248,7 @@ const artifacts = {
   'node_modules/@typescript-eslint/utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.61.1.tgz', 'sha512-1+P/3Dj6jvtybE1q0HQ6yBt/gq+oKJyLdEv4HdnqasaEXRSYCAsD59mXEVQnM/ULNdQxbX77tdG4jPRjIS6knA=='],
   'node_modules/@typescript-eslint/visitor-keys': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.61.1.tgz', 'sha512-6fJ9MHWtK14C1DSkiMlHUSOmrVebL7150xZJBlJiL62jjhIA4JmOq6flwBgDxIdBKKdoiZRel+dfPD5MLfny3w=='],
   'node_modules/eslint': ['10.5.0', 'https://registry.npmjs.org/eslint/-/eslint-10.5.0.tgz', 'sha512-1y+7C+vi12bUK1IpZeaV3gsH9fHLBmPvYmPx42pvT/E9yG0IC8g3PUZZgp0+JLJl7ZDK0flc2gc+Aw9dpCvIsQ=='],
+  'node_modules/typescript': ['6.0.3', 'https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz', 'sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=='],
   'node_modules/typescript-eslint': ['8.61.1', 'https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.61.1.tgz', 'sha512-V7PayAfJokV3pEHgN7/v03D1SpujhRfQtYLbLIiBfDDncdg4PAiRBfoS4cnCANK4jmAPncczi59QO3afiXUlNw=='],
 };
 
@@ -264,6 +269,11 @@ if (JSON.stringify(actualFamily) !== JSON.stringify(expectedFamily)) {
   throw new Error('package-lock @typescript-eslint family must remain complete and aligned');
 }
 NODE
+
+if ! grep -Fq '"types": ["node", "vscode"]' "$TSCONFIG"; then
+  printf '%s\n' "TypeScript 6 must use explicit Node and VS Code type roots." >&2
+  exit 1
+fi
 
 if ! grep -Fq "Content-Security-Policy" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview HTML must include a content security policy." >&2
@@ -752,7 +762,7 @@ for toolchain_doc_contract in \
   'ESLint 10.5.0' \
   'typescript-eslint 8.61.1' \
   '@types/node 22.19.21' \
-  'TypeScript 6' \
+  'TypeScript 6.0.3' \
   'Node 25'; do
   for maintained_doc in "$README" "$ROOT_DIR/AGENTS.md" "$ROOT_DIR/SECURITY.md" "$ROOT_DIR/VISION.md" "$ROOT_DIR/CHANGES.md"; do
     if ! grep -Fq "$toolchain_doc_contract" "$maintained_doc"; then
@@ -760,6 +770,19 @@ for toolchain_doc_contract in \
       exit 1
     fi
   done
+done
+
+for typescript_6_plan_contract in \
+  'TypeScript 6.0.3' \
+  'explicit Node and VS Code type roots' \
+  'Node 22.22.2' \
+  'Node 24.16.0' \
+  'All six isolated hostile mutations were rejected' \
+  'Do not raise the supported Node range or VS Code engine requirement'; do
+  if ! grep -Fq "$typescript_6_plan_contract" "$TYPESCRIPT_6_PLAN"; then
+    printf '%s\n' "TypeScript 6 migration plan must retain contract: $typescript_6_plan_contract" >&2
+    exit 1
+  fi
 done
 
 toolchain_plan_status=$(sed -n 's/^status: //p' "$TOOLCHAIN_PATCH_PLAN")
