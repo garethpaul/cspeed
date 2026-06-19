@@ -2,6 +2,8 @@
 
 ## 2026-06-18
 
+- Rejected the full Unicode format-character class in webview alert text,
+  including high-plane tag format characters.
 - Migrated the checked-in extension build to TypeScript 6.0.3 with explicit
   Node and VS Code type roots while preserving Node 22/24 and VS Code 1.120.
 

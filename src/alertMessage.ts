@@ -3,12 +3,15 @@ export interface AlertMessage {
 	text: string;
 }
 
+const unicodeFormatCharacterPattern = /\p{Cf}/u;
+
 function containsDisplayControlCharacter(text: string): boolean {
 	for (const character of text) {
 		const codePoint = character.codePointAt(0);
 		if (
 			codePoint !== undefined &&
-			(codePoint <= 0x1f ||
+			(unicodeFormatCharacterPattern.test(character) ||
+				codePoint <= 0x1f ||
 				codePoint === 0x00ad ||
 				(codePoint >= 0x7f && codePoint <= 0x9f) ||
 				(codePoint >= 0xd800 && codePoint <= 0xdfff) ||

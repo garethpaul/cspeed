@@ -677,8 +677,17 @@ for source_contract in \
   fi
 done
 
+for format_class_source in "$ALERT_SOURCE" "$ALERT_OUTPUT"; do
+  if ! grep -Fq 'unicodeFormatCharacterPattern = /\p{Cf}/u' "$format_class_source"; then
+    printf '%s\n' "Alert parser source and output must reject the Unicode format-character class." >&2
+    exit 1
+  fi
+done
+
 if ! grep -Fq "rejects invisible Unicode format controls" "$ALERT_TEST" ||
+  ! grep -Fq "'\\u{e0061}'" "$ALERT_TEST" ||
   ! grep -Fq "Ready\\u200bNow" "$ALERT_HANDLER_TEST" ||
+  ! grep -Fq "Ready\\u{e0061}Now" "$ALERT_HANDLER_TEST" ||
   ! grep -Fq "invisible Unicode format controls" "$README" ||
   ! grep -Fq "invisible Unicode format controls" "$ROOT_DIR/SECURITY.md" ||
   ! grep -Fq "Rejected invisible Unicode format controls" "$ROOT_DIR/CHANGES.md" ||

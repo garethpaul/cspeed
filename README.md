@@ -134,8 +134,8 @@ treating Node tests or compiled-output checks as Extension Host execution.
   nonce-scoped content security policy.
 - Webview alert text is trimmed and bounded, while C0/C1 controls, Unicode line
   separators, Unicode bidirectional ordering controls, invisible Unicode format controls,
-  and lone UTF-16 surrogates
-  are rejected before the extension host displays it.
+  high-plane tag format characters, and lone UTF-16 surrogates are rejected
+  before the extension host displays it.
 - Alert messages must provide own `command` and `text` properties before the
   extension host reads or displays them.
 - Alert fields must be own data properties without invoking accessors, and

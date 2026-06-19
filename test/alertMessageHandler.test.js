@@ -46,6 +46,7 @@ test('does not dispatch notifications for rejected alerts', () => {
 		{ command: 'alert', text: 'Ready\u2028Now' },
 		{ command: 'alert', text: 'Invoice \u202etxt.exe' },
 		{ command: 'alert', text: 'Ready\u200bNow' },
+		{ command: 'alert', text: 'Ready\u{e0061}Now' },
 		{ command: 'alert', text: 'Ready\u2061Now' },
 		{ command: 'alert', text: 'Ready\u2062Now' },
 		{ command: 'alert', text: 'Ready\u2063Now' },

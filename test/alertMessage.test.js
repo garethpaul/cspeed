@@ -138,7 +138,8 @@ test('rejects invisible Unicode format controls', () => {
 		'\u200c',
 		'\u200d',
 		'\u2060',
-		'\ufeff'
+		'\ufeff',
+		'\u{e0061}'
 	];
 
 	for (const control of formatControls) {

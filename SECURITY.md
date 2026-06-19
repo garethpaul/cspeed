@@ -41,7 +41,8 @@ Helpful reports include:
 - Webview alert parsing rejects Unicode bidirectional ordering controls before
   notification dispatch while preserving ordinary right-to-left script text.
 - Webview alert parsing rejects invisible Unicode format controls before notification
-  dispatch so rendered and copied alert text remain unambiguous.
+  dispatch, including high-plane tag format characters, so rendered and copied
+  alert text remain unambiguous.
 - Webview alert parsing rejects Unicode invisible operators before notification
   dispatch so arithmetic-looking alert text cannot hide semantic separators.
 - Webview alert parsing rejects lone UTF-16 surrogates while preserving valid
