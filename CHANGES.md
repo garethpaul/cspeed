@@ -1,11 +1,55 @@
 # Changes
 
+## 2026-06-18
+
+- Rejected the full Unicode format-character class in webview alert text,
+  including high-plane tag format characters.
+- Migrated the checked-in extension build to TypeScript 6.0.3 with explicit
+  Node and VS Code type roots while preserving Node 22/24 and VS Code 1.120.
+
+## 2026-06-17
+
+- Rejected Unicode invisible operators in webview alert text before VS Code
+  notification dispatch.
+- Refreshed the exact development baseline to ESLint 10.5.0,
+  typescript-eslint 8.61.1, and @types/node 22.19.21 with reviewed lockfile
+  artifacts; Node 25 remains a deferred compatibility change.
+
+## 2026-06-15
+
+- Rejected malformed lone UTF-16 surrogates in webview alert text while
+  preserving valid surrogate-pair emoji.
+- Rejected invisible Unicode format controls in webview alert text before VS
+  Code notification dispatch.
+
+## 2026-06-14
+
+- Added an exact-head VS Code Extension Host verification matrix with
+  privacy-safe evidence fields and every integration row explicitly unexecuted.
+- Extracted the sidebar provider behind typed VS Code dependencies and added
+  deterministic activation, resource-scoping, HTML, dispatch, and lifecycle
+  tests.
+- Bound each webview message listener to its owning view's disposal lifecycle.
+
+## 2026-06-13
+
+- Rejected Unicode bidirectional ordering controls in webview alert text while
+  preserving ordinary Arabic and Hebrew notifications.
+- Rejected accessor-backed and trap-throwing alert objects without invoking
+  getters or propagating reflection failures through notification dispatch.
+- Rejected display control characters and Unicode line separators before
+  webview alert text reaches VS Code notifications.
+
 ## 2026-06-12
 
+- Stopped GitHub Actions checkout from persisting its credential and added an
+  exact static contract for the sole workflow and checkout step.
 - Extracted alert notification dispatch into a pure extension-host boundary and
   added executable tests for emitted and suppressed notifications.
 - Extended the source baseline to require dispatch wiring, compiled output,
   tests, documentation, and the completed implementation plan.
+- Added a generated-output gate that recompiles TypeScript and rejects any
+  checked-in `out/` drift.
 
 ## 2026-06-10
 

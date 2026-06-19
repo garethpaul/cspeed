@@ -26,18 +26,35 @@ Priority:
 - Keep the webview button handler in the checked media script
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications
+- Reject display controls and Unicode line separators before notification
+  dispatch
+- Reject Unicode bidirectional ordering controls before notification dispatch
+- Reject invisible Unicode format controls before notification dispatch
+- Cover the full Unicode format-character class, including tag characters
+- Reject Unicode invisible operators before notification dispatch
+- Reject lone UTF-16 surrogates while preserving valid non-BMP characters
 - Require owned alert message fields before the extension host reads them
+- Reject accessor-backed and trap-throwing alert objects without side effects
 - Reject array alert payloads before field validation
 - Reject non-record alert payload prototypes before field validation
 - Keep the pure webview alert parser covered by executable acceptance and
   rejection tests
+- Keep activation, provider resolution, notification dispatch, and view-owned
+  listener cleanup covered by deterministic lifecycle tests
 - Keep local VS Code workspace metadata out of the shared project baseline
-- Keep the npm-backed `make check` baseline running in GitHub Actions
+- Keep the npm-backed `make check` baseline running in GitHub Actions with a
+  credential-free checkout
+- Keep TypeScript 6.0.3, ESLint 10.5.0, typescript-eslint 8.61.1, and
+  @types/node 22.19.21 reproducibly pinned with explicit Node and VS Code type
+  roots while Node 25 remains a dedicated compatibility effort
 
 Next priorities:
 
+- Execute the CSpeed Extension Host verification matrix against an exact commit
+  in isolated VS Code profiles
 - Align the README with the actual sidebar webview implementation
-- Add a small test or compile gate for CI
+- Exercise the sidebar in a live VS Code Extension Host when graphical
+  integration coverage is practical
 - Strengthen webview content security policy before adding richer UI
 - Keep package metadata and contributed commands/views accurate
 

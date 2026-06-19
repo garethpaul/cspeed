@@ -55,12 +55,18 @@ compiled `out/` output.
 Detected npm scripts:
 
 - `npm run compile` - `tsc -p ./`
+- `npm run check:generated` - compile and reject drift in checked-in `out/` files
 - `npm run check` - `scripts/check-baseline.sh`
 - `npm run lint` - `eslint src --ext ts --max-warnings=0`
-- `npm run test` - compile, run Node alert-parser and dispatch tests, and run the source baseline
-- `npm run verify` - `npm run lint && npm test && npm audit --audit-level=moderate`
+- `npm run test` - compile, run Node parser, dispatch, activation, and provider lifecycle tests, and run the source baseline
+- `npm run verify` - lint, tests, generated-output verification, and dependency audit
 - `npm run vscode:prepublish` - `npm run compile`
 - `npm run watch` - `tsc -watch -p ./`
+
+The development baseline pins TypeScript 6.0.3, ESLint 10.5.0,
+typescript-eslint 8.61.1, and @types/node 22.19.21. The compiler configuration
+uses explicit Node and VS Code type roots while preserving the declared Node
+22/24 and VS Code 1.120 contracts; Node 25 remains separate compatibility work.
 
 ## Testing and Verification
 
@@ -77,13 +83,15 @@ npm audit --audit-level=moderate
 
 GitHub Actions runs `npm ci` and `make check` on pushes, pull requests, and
 manual dispatches with Node 22 and 24 on Ubuntu 24.04. The workflow uses
-commit-pinned actions, read-only repository access, and a bounded runtime.
+commit-pinned actions, read-only repository access, a credential-free
+checkout, and a bounded runtime.
 
 `make check` runs the root lint, test, build, and audit gates. `make build`
-runs `npm run compile` so the checked-in `out/` extension output stays
-reproducible from the TypeScript source.
+runs `npm run check:generated`, which compiles TypeScript and fails when the
+checked-in `out/` extension output differs from the generated result.
 `npm test` compiles TypeScript, runs executable Node tests for accepted and
-rejected alert messages and notification dispatch, and runs
+rejected alert messages, notification dispatch, extension registration, and
+sidebar provider lifecycle behavior, and runs
 `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, base URI and form submissions disabled, bounded message
@@ -96,8 +104,16 @@ The message parser lives in `src/alertMessage.ts`, so its normalization and
 rejection behavior can be tested without loading a VS Code extension host.
 The notification boundary lives in `src/alertMessageHandler.ts`, so tests also
 verify that only accepted messages produce one normalized notification.
+The provider lives in `src/sidebarProvider.ts`, so deterministic tests also
+verify media-only resource scoping, CSP-backed HTML, contributed-view
+registration, and disposal of each message listener with its owning view.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
+
+Use [`EXTENSION_HOST_VERIFICATION.md`](EXTENSION_HOST_VERIFICATION.md) to
+record exact-head VS Code desktop and rendered sidebar evidence. Keep
+unavailable integration scenarios as explicit unexecuted rows rather than
+treating Node tests or compiled-output checks as Extension Host execution.
 
 ## Configuration and Secrets
 
@@ -116,14 +132,20 @@ When the required SDK or runtime is unavailable, use static checks and source re
   denying default resource loads.
 - The sidebar webview script is loaded from `media/main.js` under the same
   nonce-scoped content security policy.
-- Webview alert text is trimmed, bounded, and kept on one notification line
+- Webview alert text is trimmed and bounded, while C0/C1 controls, Unicode line
+  separators, Unicode bidirectional ordering controls, invisible Unicode format controls,
+  high-plane tag format characters, and lone UTF-16 surrogates are rejected
   before the extension host displays it.
 - Alert messages must provide own `command` and `text` properties before the
   extension host reads or displays them.
+- Alert fields must be own data properties without invoking accessors, and
+  reflection failures are rejected without escaping message dispatch.
 - Alert messages must be plain non-array objects before field validation runs.
 - Alert messages must use plain object prototypes before field validation runs.
 - Alert dispatch tests require accepted messages to emit exactly one normalized
   notification and rejected messages to emit none.
+- Sidebar provider tests require view-owned message subscriptions to be
+  disposed when the corresponding webview is disposed.
 - Root `make build` runs the TypeScript compiler directly before audit-backed
   verification.
 - Local `.vscode/` workspace files are ignored so editor launch settings and
@@ -151,6 +173,14 @@ When the required SDK or runtime is unavailable, use static checks and source re
   webview message validation coverage.
 - See `docs/plans/2026-06-12-cspeed-alert-dispatch-tests.md` for executable
   extension-host notification dispatch coverage.
+- See `docs/plans/2026-06-13-cspeed-alert-bidi-controls.md` for the Unicode
+  bidirectional ordering-control boundary.
+- See `docs/plans/2026-06-15-cspeed-invisible-format-controls.md` for the
+  invisible Unicode format-control boundary.
+- See `docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md` for the
+  Unicode invisible operators notification boundary.
+- See `docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md` for the malformed
+  UTF-16 alert boundary.
 
 ## Contributing
 

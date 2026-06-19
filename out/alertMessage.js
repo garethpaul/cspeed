@@ -1,24 +1,68 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseAlertMessage = parseAlertMessage;
+const unicodeFormatCharacterPattern = /\p{Cf}/u;
+function containsDisplayControlCharacter(text) {
+    for (const character of text) {
+        const codePoint = character.codePointAt(0);
+        if (codePoint !== undefined &&
+            (unicodeFormatCharacterPattern.test(character) ||
+                codePoint <= 0x1f ||
+                codePoint === 0x00ad ||
+                (codePoint >= 0x7f && codePoint <= 0x9f) ||
+                (codePoint >= 0xd800 && codePoint <= 0xdfff) ||
+                codePoint === 0x061c ||
+                (codePoint >= 0x200b && codePoint <= 0x200d) ||
+                (codePoint >= 0x200e && codePoint <= 0x200f) ||
+                codePoint === 0x2028 ||
+                codePoint === 0x2029 ||
+                (codePoint >= 0x202a && codePoint <= 0x202e) ||
+                codePoint === 0x2060 ||
+                (codePoint >= 0x2061 && codePoint <= 0x2064) ||
+                (codePoint >= 0x2066 && codePoint <= 0x2069) ||
+                codePoint === 0xfeff)) {
+            return true;
+        }
+    }
+    return false;
+}
 function parseAlertMessage(message) {
-    if (!message || typeof message !== 'object' || Array.isArray(message)) {
+    if (!message || typeof message !== 'object') {
         return undefined;
     }
-    const prototype = Object.getPrototypeOf(message);
+    let prototype;
+    let commandDescriptor;
+    let textDescriptor;
+    try {
+        if (Array.isArray(message)) {
+            return undefined;
+        }
+        prototype = Object.getPrototypeOf(message);
+        commandDescriptor = Object.getOwnPropertyDescriptor(message, 'command');
+        textDescriptor = Object.getOwnPropertyDescriptor(message, 'text');
+    }
+    catch {
+        return undefined;
+    }
     if (prototype !== Object.prototype && prototype !== null) {
         return undefined;
     }
-    const candidate = message;
-    if (!Object.prototype.hasOwnProperty.call(candidate, 'command') ||
-        !Object.prototype.hasOwnProperty.call(candidate, 'text')) {
+    if (!commandDescriptor ||
+        !textDescriptor ||
+        !Object.prototype.hasOwnProperty.call(commandDescriptor, 'value') ||
+        !Object.prototype.hasOwnProperty.call(textDescriptor, 'value')) {
         return undefined;
     }
-    if (candidate.command !== 'alert' || typeof candidate.text !== 'string') {
+    const command = commandDescriptor.value;
+    const candidateText = textDescriptor.value;
+    if (command !== 'alert' || typeof candidateText !== 'string') {
         return undefined;
     }
-    const text = candidate.text.trim();
-    if (text.length === 0 || text.length > 200 || /[\r\n]/.test(text)) {
+    if (containsDisplayControlCharacter(candidateText)) {
+        return undefined;
+    }
+    const text = candidateText.trim();
+    if (text.length === 0 || text.length > 200) {
         return undefined;
     }
     return { command: 'alert', text };

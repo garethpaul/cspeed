@@ -31,11 +31,25 @@ Helpful reports include:
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - Dependency manifests detected: package.json, package-lock.json. Dependency updates should preserve lockfiles when present and avoid introducing packages without a clear maintenance reason.
 - GitHub Actions runs `npm ci` and the npm-backed `make check` baseline on Node
-  22 and 24 with commit-pinned actions, read-only repository access, and a
-  moderate-severity audit gate; review workflow, package, and lockfile changes
-  as part of the supply-chain surface.
+  22 and 24 with commit-pinned actions, read-only repository access, a
+  credential-free checkout, and a moderate-severity audit gate; review
+  workflow, package, and lockfile changes as part of the supply-chain surface.
 - Local `.vscode/` workspace metadata should stay untracked so editor launch
   settings and recommendations remain machine-local.
+- Webview alert parsing rejects accessor-backed or reflective trap objects
+  without invoking getters or propagating exceptions into extension dispatch.
+- Webview alert parsing rejects Unicode bidirectional ordering controls before
+  notification dispatch while preserving ordinary right-to-left script text.
+- Webview alert parsing rejects invisible Unicode format controls before notification
+  dispatch, including high-plane tag format characters, so rendered and copied
+  alert text remain unambiguous.
+- Webview alert parsing rejects Unicode invisible operators before notification
+  dispatch so arithmetic-looking alert text cannot hide semantic separators.
+- Webview alert parsing rejects lone UTF-16 surrogates while preserving valid
+  surrogate-pair characters such as emoji.
+- Provider lifecycle tests keep webview resources scoped to checked-in media,
+  retain the nonce CSP, and dispose message listeners when their owning view
+  closes.
 
 ## Service and API Notes
 
@@ -49,6 +63,11 @@ prototypes, wrong types, multiline text, and size limits.
 ## Dependency and Supply Chain Security
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
+
+The reviewed development-toolchain baseline is TypeScript 6.0.3 and ESLint 10.5.0,
+with typescript-eslint 8.61.1 and @types/node 22.19.21. The compiler
+uses explicit Node and VS Code type roots; Node 25 still requires dedicated
+compatibility review rather than an unreviewed lockfile update.
 
 ## Safe Research Guidelines
 

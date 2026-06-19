@@ -52,6 +52,8 @@ built-in test runner.
   rejected payloads.
 - Extended the static baseline and maintenance documentation to preserve the
   executable dispatch contract.
+- Added a generated-output gate that recompiles TypeScript and fails when the
+  checked-in `out/` tree differs from the generated result.
 
 ## Verification
 
@@ -60,5 +62,7 @@ built-in test runner.
 - `make check`
 - Mutation check: bypassing the dispatch function in `extension.ts` must fail.
 - Mutation check: removing dispatch test execution must fail.
+- Mutation check: changing checked-in dispatch output without the matching
+  TypeScript source must fail the generated-output gate.
 - `sh -n scripts/check-baseline.sh`
 - `git diff --check`

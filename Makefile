@@ -10,7 +10,7 @@ test:
 	$(NPM) --prefix $(ROOT) test
 
 build:
-	$(NPM) --prefix $(ROOT) run compile
+	$(NPM) --prefix $(ROOT) run check:generated
 
 audit:
 	$(NPM) --prefix $(ROOT) audit --audit-level=moderate
