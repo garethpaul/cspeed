@@ -181,7 +181,7 @@ if ! grep -Fq "verify: lint test build audit" "$ROOT_DIR/Makefile"; then
   exit 1
 fi
 
-if ! grep -Fq 'ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
+if ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
   [ "$(grep -c '\$(NPM) --prefix \$(ROOT)' "$MAKEFILE")" -ne 4 ]; then
   printf '%s\n' "Make targets must run npm from the repository root." >&2
   exit 1
