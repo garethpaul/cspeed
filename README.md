@@ -73,6 +73,8 @@ uses explicit Node and VS Code type roots while preserving the declared Node
 Run the local gate before changing extension or webview behavior:
 
 ```bash
+node scripts/run-make.js . check
+node scripts/run-make.js . build
 make check
 make build
 npm run verify
@@ -81,18 +83,32 @@ npm test
 npm audit --audit-level=moderate
 ```
 
-GitHub Actions runs `npm ci` and `make check` on pushes, pull requests, and
-manual dispatches with Node 22 and 24 on Ubuntu 24.04. The workflow uses
-commit-pinned actions, read-only repository access, a credential-free
-checkout, and a bounded runtime.
+GitHub Actions runs `npm ci` and `node scripts/run-make.js . check` on pushes,
+pull requests, and manual dispatches with Node 22 and 24 on Ubuntu 24.04. The
+workflow uses commit-pinned actions, read-only repository access, a
+credential-free checkout, and a bounded runtime.
 
-`make check` runs the root lint, test, build, and audit gates. `make build`
-runs `npm run check:generated`, which compiles TypeScript and fails when the
-checked-in `out/` extension output differs from the generated result.
+`scripts/run-make.js` is the public verification boundary for repository paths
+or targets supplied by another process. It accepts exactly a repository path
+and one of `lint`, `test`, `build`, `audit`, `verify`, or `check`; canonicalizes
+and verifies that checkout; clears GNU Make control variables; and invokes only
+the matching private repository target. The launcher preserves the canonical
+repository path as one exact `npm --prefix` argument, including whitespace and
+metacharacters supported by the operating system.
+
+Direct raw Make invocation is only a trusted interactive convenience. The
+trusted `make check` and `make build` commands delegate to the launcher, but
+raw Make arguments and environment are parsed before that delegation and are
+not a safe interface for hostile caller-controlled flags, assignments, or Make
+functions. Use the Node launcher for automation and arbitrary paths. Its
+`check` target runs lint, test, build, and audit; its `build` target runs `npm
+run check:generated`, which compiles TypeScript and fails when checked-in
+`out/` differs from generated output.
+
 `npm test` compiles TypeScript, runs executable Node tests for accepted and
 rejected alert messages, notification dispatch, extension registration, and
-sidebar provider lifecycle behavior, and runs
-`scripts/check-baseline.sh`. The source
+sidebar provider lifecycle behavior, exercises the launcher trust boundary,
+and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
 script execution, base URI and form submissions disabled, bounded message
 handling with non-empty normalized alert text, own alert message properties,

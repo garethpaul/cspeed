@@ -1,5 +1,16 @@
 # Changes
 
+## 2026-06-22
+
+- Added one validated Node launcher for repository verification paths and
+  targets, with exact root identity, target allowlisting, and Make control
+  environment removal before private targets run.
+- Kept direct `make` commands as trusted developer conveniences only and
+  documented that raw Make parsing is not a hostile-input boundary.
+- Added regression coverage for compact directory redirection, Make function
+  evaluation channels, hostile path bytes, checkout collisions, exact npm
+  argv, and failure propagation.
+
 ## 2026-06-18
 
 - Rejected the full Unicode format-character class in webview alert text,
