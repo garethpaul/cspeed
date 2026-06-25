@@ -8,11 +8,12 @@ const { spawnSync } = require('node:child_process');
 const test = require('node:test');
 
 const sourceRepository = path.resolve(__dirname, '..');
+const excludedFixtureDirectories = new Set(['.explore', '.git', 'coverage', 'node_modules']);
 
 function copyRepository(target) {
 	fs.cpSync(sourceRepository, target, {
 		recursive: true,
-		filter: entry => path.basename(entry) !== '.git'
+		filter: entry => !excludedFixtureDirectories.has(path.basename(entry))
 	});
 }
 
@@ -79,6 +80,24 @@ function withFixture(name, callback) {
 		fs.rmSync(tempRoot, { recursive: true, force: true });
 	}
 }
+
+test('fixture copies exclude installed dependencies', () => {
+	const dependencies = path.join(sourceRepository, 'node_modules');
+	const createdDependencies = !fs.existsSync(dependencies);
+	const marker = path.join(dependencies, '.cspeed-fixture-copy-marker');
+	fs.mkdirSync(dependencies, { recursive: true });
+	fs.writeFileSync(marker, 'fixture copy probe');
+	try {
+		withFixture('dependency-filter', tempRoot => {
+			const repository = path.join(tempRoot, 'repository');
+			copyRepository(repository);
+			assert.equal(fs.existsSync(path.join(repository, 'node_modules')), false);
+		});
+	} finally {
+		fs.rmSync(marker, { force: true });
+		if (createdDependencies) fs.rmdirSync(dependencies);
+	}
+});
 
 test('launcher preserves an arbitrary canonical repository path as one exact npm prefix', () => {
 	withFixture('hostile-path', tempRoot => {

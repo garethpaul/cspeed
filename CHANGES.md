@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-25
+
+- Revalidated the Make launcher boundary and stopped hostile-path test fixtures
+  from recursively copying installed dependencies and local generated state.
+
 ## 2026-06-22
 
 - Added one validated Node launcher for repository verification paths and
