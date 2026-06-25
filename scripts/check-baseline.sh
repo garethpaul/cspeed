@@ -43,6 +43,9 @@ PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecyc
 EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 MAKEFILE="$ROOT_DIR/Makefile"
+MAKE_LAUNCHER="$ROOT_DIR/scripts/run-make.js"
+NPM_GATE="$ROOT_DIR/scripts/run-npm-gate.js"
+MAKE_PATH_TEST="$ROOT_DIR/test/makePathBoundary.test.js"
 
 require_file() {
   path=$1
@@ -70,12 +73,15 @@ for path in \
   "test/alertMessage.test.js" \
   "test/alertMessageHandler.test.js" \
   "test/extension.test.js" \
+  "test/makePathBoundary.test.js" \
   "test/sidebarProvider.test.js" \
   "out/alertMessage.js" \
   "out/alertMessageHandler.js" \
   "out/extension.js" \
   "out/sidebarProvider.js" \
   "scripts/check-baseline.sh" \
+  "scripts/run-make.js" \
+  "scripts/run-npm-gate.js" \
   "docs/plans/2026-06-08-cspeed-check-wrapper.md" \
   "docs/plans/2026-06-08-cspeed-webview-baseline.md" \
   "docs/plans/2026-06-08-cspeed-verify-gate.md" \
@@ -124,7 +130,7 @@ for fragment in \
   "contents: read" \
   "timeout-minutes: 10" \
   "npm ci" \
-  "make check"; do
+  "node scripts/run-make.js . check"; do
   if ! grep -Fq "$fragment" "$CI_WORKFLOW"; then
     printf '%s\n' "GitHub Actions workflow must include $fragment." >&2
     exit 1
@@ -161,8 +167,11 @@ if ! grep -Fq '"verify": "npm run lint && npm test && npm run check:generated &&
   exit 1
 fi
 
-if ! grep -Fq "check: verify" "$ROOT_DIR/Makefile"; then
-  printf '%s\n' "Makefile must expose make check as the repository verification wrapper." >&2
+if ! grep -Fq 'CSPEED_REPOSITORY_MAKEFILE := 1' "$MAKEFILE" ||
+  ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
+  ! grep -Fq '@node "$(ROOT)scripts/run-make.js" "$(ROOT)" check' "$MAKEFILE" ||
+  ! grep -Fq '__cspeed_check: __cspeed_verify' "$MAKEFILE"; then
+  printf '%s\n' "Makefile must expose trusted wrappers and token-gated private launcher targets." >&2
   exit 1
 fi
 
@@ -176,14 +185,55 @@ if ! grep -Fq 'run check:generated' "$ROOT_DIR/Makefile"; then
   exit 1
 fi
 
-if ! grep -Fq "verify: lint test build audit" "$ROOT_DIR/Makefile"; then
-  printf '%s\n' "Makefile verify must run lint, test, build, and audit gates." >&2
+if ! grep -Fq '__cspeed_verify: __cspeed_lint __cspeed_test __cspeed_build __cspeed_audit' "$MAKEFILE"; then
+  printf '%s\n' "Private Make verification must run lint, test, build, and audit gates." >&2
   exit 1
 fi
 
-if ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
-  [ "$(grep -c '\$(NPM) --prefix \$(ROOT)' "$MAKEFILE")" -ne 4 ]; then
-  printf '%s\n' "Make targets must run npm from the repository root." >&2
+for launcher_contract in \
+  "args.length !== 2" \
+  "fs.realpathSync(args[0])" \
+  "packageJson.name !== 'cspeed'" \
+  "'MAKEFLAGS'" \
+  "'MAKEFILES'" \
+  "'GNUMAKEFLAGS'" \
+  "'MAKEOVERRIDES'" \
+  "'MAKEFILE_LIST'" \
+  "'CSPEED_LAUNCH_CONTEXT'" \
+  "'CSPEED_LAUNCH_TOKEN'" \
+  "shell: false"; do
+  if ! grep -Fq "$launcher_contract" "$MAKE_LAUNCHER"; then
+    printf '%s\n' "Node Make launcher must retain boundary contract: $launcher_contract" >&2
+    exit 1
+  fi
+done
+
+for gate_contract in \
+  "allowedArguments" \
+  "fs.realpathSync(process.cwd())" \
+  "root !== context.root" \
+  "['--prefix', root, ...npmArguments]" \
+  "shell: false"; do
+  if ! grep -Fq "$gate_contract" "$NPM_GATE"; then
+    printf '%s\n' "Private npm gate must retain exact root and argv contract: $gate_contract" >&2
+    exit 1
+  fi
+done
+
+for test_contract in \
+  "compact directory options" \
+  "clears Make control environment" \
+  "selected repository identity wins" \
+  "private Make targets fail closed" \
+  "propagates npm failure"; do
+  if ! grep -Fq "$test_contract" "$MAKE_PATH_TEST"; then
+    printf '%s\n' "Make path regression suite must retain: $test_contract" >&2
+    exit 1
+  fi
+done
+
+if [ "$(grep -c 'node scripts/run-npm-gate.js' "$MAKEFILE")" -ne 4 ]; then
+  printf '%s\n' "Private Make targets must expose exactly four fixed npm gate recipes." >&2
   exit 1
 fi
 
