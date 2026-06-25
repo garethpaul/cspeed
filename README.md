@@ -90,17 +90,21 @@ credential-free checkout, and a bounded runtime.
 
 `scripts/run-make.js` is the public verification boundary for repository paths
 or targets supplied by another process. It accepts exactly a repository path
-and one of `lint`, `test`, `build`, `audit`, `verify`, or `check`; canonicalizes
-and verifies that checkout; clears GNU Make control variables; and invokes only
-the matching private repository target. The launcher preserves the canonical
-repository path as one exact `npm --prefix` argument, including whitespace and
-metacharacters supported by the operating system.
+and one of `lint`, `test`, `build`, `audit`, `verify`, or `check`. Invoke the
+trusted launcher from the checkout being verified: the supplied path must
+canonicalize to that launcher's own repository root, so a forged neighboring
+checkout is rejected before Make parses it. The launcher then verifies the
+checkout identity, clears GNU Make control variables, and invokes only the
+matching private repository target. It preserves the canonical repository path
+as one exact `npm --prefix` argument, including whitespace and metacharacters
+supported by the operating system.
 
 Direct raw Make invocation is only a trusted interactive convenience. The
 trusted `make check` and `make build` commands delegate to the launcher, but
 raw Make arguments and environment are parsed before that delegation and are
 not a safe interface for hostile caller-controlled flags, assignments, or Make
-functions. Use the Node launcher for automation and arbitrary paths. Its
+functions. Use the trusted Node launcher for automation and arbitrary path
+bytes within its own checkout. Its
 `check` target runs lint, test, build, and audit; its `build` target runs `npm
 run check:generated`, which compiles TypeScript and fails when checked-in
 `out/` differs from generated output.

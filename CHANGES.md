@@ -4,6 +4,8 @@
 
 - Revalidated the Make launcher boundary and stopped hostile-path test fixtures
   from recursively copying installed dependencies and local generated state.
+- Rejected forged neighboring checkouts before Make execution by binding the
+  supplied repository path to the trusted launcher's own canonical root.
 
 ## 2026-06-22
 

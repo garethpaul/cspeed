@@ -25,6 +25,8 @@ if (args.length !== 2 || !targets.has(args[1])) {
 let root;
 try {
 	root = fs.realpathSync(args[0]);
+	const launcherRoot = fs.realpathSync(path.resolve(__dirname, '..'));
+	if (root !== launcherRoot) throw new Error('launcher checkout mismatch');
 	const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 	const makefile = fs.readFileSync(path.join(root, 'Makefile'), 'utf8');
 	if (packageJson.name !== 'cspeed' || !/^CSPEED_REPOSITORY_MAKEFILE := 1$/m.test(makefile)) {

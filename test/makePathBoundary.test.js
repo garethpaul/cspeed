@@ -253,3 +253,23 @@ test('launcher rejects invalid repository identity and propagates npm failure wi
 		assert.deepEqual(readInvocations(tools.log), expectedInvocations(repository).slice(0, 2));
 	});
 });
+
+test('trusted launcher rejects a forged checkout before Make execution', () => {
+	withFixture('forged-checkout', tempRoot => {
+		const trustedRepository = path.join(tempRoot, 'trusted');
+		const forgedRepository = path.join(tempRoot, 'forged');
+		const marker = path.join(tempRoot, 'forged-marker');
+		copyRepository(trustedRepository);
+		fs.mkdirSync(forgedRepository);
+		fs.writeFileSync(path.join(forgedRepository, 'package.json'), JSON.stringify({ name: 'cspeed' }));
+		fs.writeFileSync(path.join(forgedRepository, 'Makefile'), `CSPEED_REPOSITORY_MAKEFILE := 1
+__cspeed_check:
+	@touch ${marker}
+`);
+		const tools = createTools(tempRoot);
+		const result = runLauncher(trustedRepository, [forgedRepository, 'check'], tempRoot, tools);
+		assert.equal(result.status, 2, `${result.stdout}\n${result.stderr}`);
+		assert.equal(fs.existsSync(marker), false);
+		assert.deepEqual(readInvocations(tools.log), []);
+	});
+});
