@@ -103,7 +103,9 @@ Direct raw Make invocation is only a trusted interactive convenience. The
 trusted `make check` and `make build` commands delegate to the launcher, but
 raw Make arguments and environment are parsed before that delegation and are
 not a safe interface for hostile caller-controlled flags, assignments, or Make
-functions. Use the trusted Node launcher for automation and arbitrary path
+functions. These trusted wrappers remain rooted to this checkout when the
+Makefile is invoked by absolute path from another directory. Use the trusted
+Node launcher for automation and arbitrary path
 bytes within its own checkout. Its
 `check` target runs lint, test, build, and audit; its `build` target runs `npm
 run check:generated`, which compiles TypeScript and fails when checked-in

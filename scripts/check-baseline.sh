@@ -168,7 +168,8 @@ if ! grep -Fq '"verify": "npm run lint && npm test && npm run check:generated &&
 fi
 
 if ! grep -Fq 'CSPEED_REPOSITORY_MAKEFILE := 1' "$MAKEFILE" ||
-  ! grep -Fq '@node scripts/run-make.js . check' "$MAKEFILE" ||
+  ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
+  ! grep -Fq '@node "$(ROOT)scripts/run-make.js" "$(ROOT)" check' "$MAKEFILE" ||
   ! grep -Fq '__cspeed_check: __cspeed_verify' "$MAKEFILE"; then
   printf '%s\n' "Makefile must expose trusted wrappers and token-gated private launcher targets." >&2
   exit 1

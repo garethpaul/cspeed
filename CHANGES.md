@@ -6,6 +6,8 @@
   from recursively copying installed dependencies and local generated state.
 - Rejected forged neighboring checkouts before Make execution by binding the
   supplied repository path to the trusted launcher's own canonical root.
+- Restored checkout-rooted public Make recipes so trusted absolute `make -f`
+  invocations remain location-independent.
 
 ## 2026-06-22
 

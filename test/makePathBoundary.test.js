@@ -234,6 +234,19 @@ test('private Make targets fail closed without a launcher context while trusted 
 	});
 });
 
+test('trusted Makefile invocation remains rooted outside the checkout', () => {
+	withFixture('external-makefile', tempRoot => {
+		const repository = path.join(tempRoot, 'repository');
+		const caller = path.join(tempRoot, 'caller');
+		copyRepository(repository);
+		fs.mkdirSync(caller);
+		const tools = createTools(tempRoot);
+		const result = runMake(repository, ['-f', path.join(repository, 'Makefile'), 'check'], caller, tools);
+		assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+		assert.deepEqual(readInvocations(tools.log), expectedInvocations(repository));
+	});
+});
+
 test('launcher rejects invalid repository identity and propagates npm failure without later gates', () => {
 	withFixture('closure', tempRoot => {
 		const repository = path.join(tempRoot, 'repository');

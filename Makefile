@@ -1,6 +1,7 @@
 SHELL := /bin/sh
 
 CSPEED_REPOSITORY_MAKEFILE := 1
+override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: lint test build audit verify check
 .PHONY: __cspeed_lint __cspeed_test __cspeed_build __cspeed_audit __cspeed_verify __cspeed_check
@@ -19,22 +20,22 @@ export CSPEED_LAUNCH_TOKEN
 endif
 
 lint:
-	@node scripts/run-make.js . lint
+	@node "$(ROOT)scripts/run-make.js" "$(ROOT)" lint
 
 test:
-	@node scripts/run-make.js . test
+	@node "$(ROOT)scripts/run-make.js" "$(ROOT)" test
 
 build:
-	@node scripts/run-make.js . build
+	@node "$(ROOT)scripts/run-make.js" "$(ROOT)" build
 
 audit:
-	@node scripts/run-make.js . audit
+	@node "$(ROOT)scripts/run-make.js" "$(ROOT)" audit
 
 verify:
-	@node scripts/run-make.js . verify
+	@node "$(ROOT)scripts/run-make.js" "$(ROOT)" verify
 
 check:
-	@node scripts/run-make.js . check
+	@node "$(ROOT)scripts/run-make.js" "$(ROOT)" check
 
 __cspeed_lint:
 	@node scripts/run-npm-gate.js run lint
