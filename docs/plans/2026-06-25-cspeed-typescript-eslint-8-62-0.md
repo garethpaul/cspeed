@@ -55,8 +55,8 @@ reason across the manifest pin, lockfile root, reviewed package-family
 versions and integrity, family completeness, maintained guidance, plan status,
 release evidence, and compatibility evidence.
 
-Exact-head hosted Node 22 and Node 24 checks passed for implementation commit
-`f1fbb0d0e7350c37e9211a094dd78cec7db8156a`. Push workflow run
+Exact-head hosted Node 22 and Node 24 checks passed. The verified implementation
+commit was `f1fbb0d0e7350c37e9211a094dd78cec7db8156a`. Push workflow run
 `28218298624`, pull-request workflow run `28218305764`, and CodeQL run
 `28218304813` all completed successfully.
 
