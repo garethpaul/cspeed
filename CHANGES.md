@@ -1,5 +1,15 @@
 # Changes
 
+## 2026-06-26
+
+- Removed unused local image and stylesheet permissions from the sidebar
+  webview CSP so the current HTML permits only its nonce-authorized media
+  script while retaining the existing default, base URI, and form denials.
+- Added executable and source-baseline contracts for the script-only policy.
+- Repository and external-directory `make check` passed all 30 Node tests,
+  lint, generated-output parity, and a zero-finding moderate audit; isolated
+  source and test-contract mutations failed for the intended reason.
+
 ## 2026-06-25
 
 - Refreshed typescript-eslint 8.62.0 with exact package-family artifacts

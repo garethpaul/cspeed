@@ -48,8 +48,8 @@ Helpful reports include:
 - Webview alert parsing rejects lone UTF-16 surrogates while preserving valid
   surrogate-pair characters such as emoji.
 - Provider lifecycle tests keep webview resources scoped to checked-in media,
-  retain the nonce CSP, and dispose message listeners when their owning view
-  closes.
+  retain the script-only nonce CSP without unused image or stylesheet load
+  capability, and dispose message listeners when their owning view closes.
 
 ## Service and API Notes
 

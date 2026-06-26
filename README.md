@@ -116,7 +116,8 @@ rejected alert messages, notification dispatch, extension registration, and
 sidebar provider lifecycle behavior, exercises the launcher trust boundary,
 and runs `scripts/check-baseline.sh`. The source
 baseline checks that the webview has a content security policy, nonce-scoped
-script execution, base URI and form submissions disabled, bounded message
+script execution, no image or stylesheet load capability, base URI and form
+submissions disabled, bounded message
 handling with non-empty normalized alert text, own alert message properties,
 plain non-array objects, plain object prototypes, single-line alert
 notifications, and synchronized compiled output. The script nonce is generated
@@ -152,6 +153,8 @@ treating Node tests or compiled-output checks as Extension Host execution.
   output synchronized with the TypeScript source.
 - The webview CSP keeps base URI and form submissions disabled in addition to
   denying default resource loads.
+- The current webview CSP permits only its nonce-authorized local script and
+  grants no image or stylesheet load capability.
 - The sidebar webview script is loaded from `media/main.js` under the same
   nonce-scoped content security policy.
 - Webview alert text is trimmed and bounded, while C0/C1 controls, Unicode line

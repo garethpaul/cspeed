@@ -26,8 +26,6 @@ class SidebarProvider {
             "default-src 'none'",
             "base-uri 'none'",
             "form-action 'none'",
-            `img-src ${webview.cspSource}`,
-            `style-src ${webview.cspSource}`,
             `script-src 'nonce-${nonce}'`
         ].join('; ');
         return `<!DOCTYPE html>

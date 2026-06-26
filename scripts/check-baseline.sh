@@ -26,6 +26,7 @@ MESSAGE_OWN_PROPERTY_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-own-prop
 EDITOR_METADATA_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-editor-metadata-ignore.md"
 ALERT_PLAIN_OBJECT_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-plain-object-validation.md"
 CSP_NAVIGATION_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-webview-csp-navigation.md"
+SCRIPT_ONLY_CSP_PLAN="$ROOT_DIR/docs/plans/2026-06-26-cspeed-script-only-csp.md"
 ALERT_PROTOTYPE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-cspeed-alert-object-prototype.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-ci-baseline.md"
 PARSER_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-10-cspeed-alert-parser-tests.md"
@@ -337,6 +338,12 @@ if ! grep -Fq "script-src 'nonce-" "$PROVIDER_SOURCE"; then
   exit 1
 fi
 
+if grep -Eq '(img|style)-src' "$PROVIDER_SOURCE" ||
+  grep -Eq '(img|style)-src' "$PROVIDER_OUTPUT"; then
+  printf '%s\n' "Webview CSP must not allow unused local image or style loads." >&2
+  exit 1
+fi
+
 if ! grep -Fq "base-uri 'none'" "$PROVIDER_SOURCE" ||
    ! grep -Fq "form-action 'none'" "$PROVIDER_SOURCE"; then
   printf '%s\n' "Webview CSP must disable base URI and form submissions explicitly." >&2
@@ -507,7 +514,8 @@ if ! grep -Fq "const messageSubscription = webviewView.webview.onDidReceiveMessa
 fi
 
 for provider_test_contract in \
-  "resolves a script-enabled media-scoped webview with a nonce CSP" \
+  "resolves a script-only media-scoped webview with a nonce CSP" \
+  "assert.doesNotMatch(harness.webview.html, /(?:img|style)-src vscode-webview-resource:/)" \
   "dispatches only validated alerts to the notification dependency" \
   "disposes the message listener with its owning webview" \
   "assert.deepEqual(harness.notifications, ['Ready'])" \
@@ -687,6 +695,14 @@ fi
 
 if ! grep -Fq "base URI and form submissions disabled" "$README"; then
   printf '%s\n' "README must document CSP navigation restrictions." >&2
+  exit 1
+fi
+
+if ! grep -Fq "grants no image or stylesheet load capability" "$README" ||
+  ! grep -Fq "script-only nonce CSP" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "free of unused image and stylesheet capabilities" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Removed unused local image and stylesheet permissions" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Maintenance docs must record the script-only webview CSP." >&2
   exit 1
 fi
 
@@ -1076,6 +1092,13 @@ fi
 
 if ! grep -Fq "make check" "$CSP_NAVIGATION_PLAN"; then
   printf '%s\n' "CSP navigation restriction plan must record make check verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Status: Completed" "$SCRIPT_ONLY_CSP_PLAN" ||
+  ! grep -Fq "Remove unused \`img-src\` and \`style-src\` capabilities" "$SCRIPT_ONLY_CSP_PLAN" ||
+  ! grep -Fq "make check" "$SCRIPT_ONLY_CSP_PLAN"; then
+  printf '%s\n' "Script-only CSP plan must retain completed verification evidence." >&2
   exit 1
 fi
 
