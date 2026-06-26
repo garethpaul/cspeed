@@ -2,6 +2,9 @@
 
 ## 2026-06-25
 
+- Refreshed typescript-eslint 8.62.0 with exact package-family artifacts
+  while preserving TypeScript 6.0.3, ESLint 10.5.0, and the Node 22/24 gate;
+  Node 25 remains a deferred compatibility change.
 - Revalidated the Make launcher boundary and stopped hostile-path test fixtures
   from recursively copying installed dependencies and local generated state.
 - Rejected forged neighboring checkouts before Make execution by binding the

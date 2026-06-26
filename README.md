@@ -64,7 +64,7 @@ Detected npm scripts:
 - `npm run watch` - `tsc -watch -p ./`
 
 The development baseline pins TypeScript 6.0.3, ESLint 10.5.0,
-typescript-eslint 8.61.1, and @types/node 22.19.21. The compiler configuration
+typescript-eslint 8.62.0, and @types/node 22.19.21. The compiler configuration
 uses explicit Node and VS Code type roots while preserving the declared Node
 22/24 and VS Code 1.120 contracts; Node 25 remains separate compatibility work.
 

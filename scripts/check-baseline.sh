@@ -39,6 +39,7 @@ INVISIBLE_OPERATOR_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-invisible-operat
 LONE_SURROGATE_PLAN="$ROOT_DIR/docs/plans/2026-06-15-cspeed-alert-lone-surrogates.md"
 TOOLCHAIN_PATCH_PLAN="$ROOT_DIR/docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md"
 TYPESCRIPT_6_PLAN="$ROOT_DIR/docs/plans/2026-06-18-001-chore-typescript-6-migration-plan.md"
+TYPESCRIPT_ESLINT_PATCH_PLAN="$ROOT_DIR/docs/plans/2026-06-25-cspeed-typescript-eslint-8-62-0.md"
 PROVIDER_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-provider-lifecycle-tests.md"
 EXTENSION_HOST_PLAN="$ROOT_DIR/docs/plans/2026-06-14-cspeed-extension-host-verification.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
@@ -104,6 +105,7 @@ for path in \
   "docs/plans/2026-06-17-cspeed-invisible-operator-alerts.md" \
   "docs/plans/2026-06-17-cspeed-lint-toolchain-patch-refresh.md" \
   "docs/plans/2026-06-18-001-chore-typescript-6-migration-plan.md" \
+  "docs/plans/2026-06-25-cspeed-typescript-eslint-8-62-0.md" \
   "docs/plans/2026-06-09-cspeed-normalized-webview-alerts.md"; do
   require_file "$path"
 done
@@ -247,7 +249,7 @@ for package_contract in \
   '"@types/vscode-webview": "1.57.5"' \
   '"eslint": "10.5.0"' \
   '"typescript": "6.0.3"' \
-  '"typescript-eslint": "8.61.1"'; do
+  '"typescript-eslint": "8.62.0"'; do
   if ! grep -Fq "$package_contract" "$PACKAGE_JSON"; then
     printf '%s\n' "package.json must keep dependency contract: $package_contract" >&2
     exit 1
@@ -274,7 +276,7 @@ const expectedDevDependencies = {
   '@types/vscode-webview': '1.57.5',
   eslint: '10.5.0',
   typescript: '6.0.3',
-  'typescript-eslint': '8.61.1',
+  'typescript-eslint': '8.62.0',
 };
 
 if (!isDeepStrictEqual(packageJson.devDependencies, expectedDevDependencies)) {
@@ -287,19 +289,19 @@ if (!root || !isDeepStrictEqual(root.devDependencies, packageJson.devDependencie
 
 const artifacts = {
   'node_modules/@types/node': ['22.19.21', 'https://registry.npmjs.org/@types/node/-/node-22.19.21.tgz', 'sha512-VMeFBSCKQKmm2swI2kW51SFusDqekC6q9trBCvJ/JliDchFSuoYYKN7yVNjPthP1HKZcx3U1gI/wTcEBjEFKTA=='],
-  'node_modules/@typescript-eslint/eslint-plugin': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.61.1.tgz', 'sha512-ZPlVl3PB3et/59Ne0fv/sci6ZXz4T4Hp4nTJ56i/Y0gR89ARb+KphojTq6j+56E5PIezmOIOOWyY+aWQFd+IkQ=='],
-  'node_modules/@typescript-eslint/parser': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.61.1.tgz', 'sha512-PJ5vePq5/ognBbrIcoC5+SHO5dfpeLPzP9FpLkzWrguoYQEeeSjlJpVwOpo1JRSTEi7dRcwNy4h4dzV70PqHcg=='],
-  'node_modules/@typescript-eslint/project-service': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.61.1.tgz', 'sha512-PrC4JYGmR241lYnfhmKGTXkFqv8+ymbTFgSAY0fVXpY82/QkMw5TZPl+vGzuDDU2QYJk9fIDOBTntF+yDv9LEA=='],
-  'node_modules/@typescript-eslint/scope-manager': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.61.1.tgz', 'sha512-L2bdIeoQS8FlKAvONAr20w6OcLXeB+qiDKbAooS9A0Ben+iSIkBef0FxqwKWYqt5sa0i4KJtxVyVmhMylKzF5w=='],
-  'node_modules/@typescript-eslint/tsconfig-utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.61.1.tgz', 'sha512-UN/H4di+OO7EWx2ovME+8t31YO+KVnK0RRKEHR3kOt21/Ay8BOq3M1OMvWs5vNiqcFCYGYoxK3MXPZzmMUE+yg=='],
-  'node_modules/@typescript-eslint/type-utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.61.1.tgz', 'sha512-GYRicKmVK0C4fsKgaACaknOUAq9Oa2kwsjnpFhFcS/5p4Ht5IP9OVLbgIgcK4SRk92nVHFluurg1lumD9dBcLw=='],
-  'node_modules/@typescript-eslint/types': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/types/-/types-8.61.1.tgz', 'sha512-G+CRlPqLv7Bz1IZVs03x5K59F1veqL0EJUROAdGhKsEq8qOiRiZbI+HUojPq5l0fEGOKModD9br6lObhB8zkoA=='],
-  'node_modules/@typescript-eslint/typescript-estree': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.61.1.tgz', 'sha512-u+oQD3BqYWPc8YV9Zab4vaJElJuwOLPRc10Jm1o/qS+6Qwen14HCWwx0Seo4LnSn2wxea2Ik8DxPt2/FHmuhrg=='],
-  'node_modules/@typescript-eslint/utils': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.61.1.tgz', 'sha512-1+P/3Dj6jvtybE1q0HQ6yBt/gq+oKJyLdEv4HdnqasaEXRSYCAsD59mXEVQnM/ULNdQxbX77tdG4jPRjIS6knA=='],
-  'node_modules/@typescript-eslint/visitor-keys': ['8.61.1', 'https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.61.1.tgz', 'sha512-6fJ9MHWtK14C1DSkiMlHUSOmrVebL7150xZJBlJiL62jjhIA4JmOq6flwBgDxIdBKKdoiZRel+dfPD5MLfny3w=='],
+  'node_modules/@typescript-eslint/eslint-plugin': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.62.0.tgz', 'sha512-o+mpz7EYiMzXoySXiKmzlabIvTVqUuK5yLrAedRPRDA0IpPFMUV1IXt6OqljIxX/kumN6EjUYp41Hqelh6p/Dw=='],
+  'node_modules/@typescript-eslint/parser': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.62.0.tgz', 'sha512-dzHeT2gySzZtLDsuqxU9AkYgIsQoHAHtRBpOqM+Ofzx1Bwrd2RcCjQJ+6iQbsHOIR6NS33bF2W1k3blN1zLDrA=='],
+  'node_modules/@typescript-eslint/project-service': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/project-service/-/project-service-8.62.0.tgz', 'sha512-wexnCqiTg7BOGtbLDftYpRWlmLq4xfoMd7BKFR6Y75sZS3QmRKLdN3yWLhmIYgqMmP/OXWpj3H8odkb5nGURCQ=='],
+  'node_modules/@typescript-eslint/scope-manager': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-8.62.0.tgz', 'sha512-1lX38kNxXIRb8mEc3lbq5mdHq1Pf2+U0nFU65KfT18mtPxxl0fvjuEE92mHuXPuCtElJhOrddOpyMlM3Z0umEA=='],
+  'node_modules/@typescript-eslint/tsconfig-utils': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/tsconfig-utils/-/tsconfig-utils-8.62.0.tgz', 'sha512-y2GAdB6ykaXUvuspbYnizQc4oDDz0Tz/Yc7iWrXf9mx8vm/L/0vLHCe0tS2boG96Zy+DivnVDQ9ZUEWoHqqx1g=='],
+  'node_modules/@typescript-eslint/type-utils': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/type-utils/-/type-utils-8.62.0.tgz', 'sha512-+g5O3j0w2ldzC86Pv6fvbO/xhAonbJFIdf/MKQ1d30gndlsVzUOE83ldfSE15Qrl9fhFjK6AovHs5Wpp6vx86w=='],
+  'node_modules/@typescript-eslint/types': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/types/-/types-8.62.0.tgz', 'sha512-KvAclkktORPvM54TgLgA4z9HIV1M8zOgw9ZVNXl9f/8dLYfXYX1wkMXP7qmabpijQRV5bHJLOmoyGQbLMaUYeg=='],
+  'node_modules/@typescript-eslint/typescript-estree': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/typescript-estree/-/typescript-estree-8.62.0.tgz', 'sha512-+hVbNxtW64pIcZWDPGbyaKF7vp2IBTVY5ma1blwwksrjdsbdqqEKvJWMGbBofei4F6Dovx1M0RJgoFeNu2279A=='],
+  'node_modules/@typescript-eslint/utils': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/utils/-/utils-8.62.0.tgz', 'sha512-82r66fi9zYwZ+mTq3vKgwjbZ1PVk/DJzrXFLpG6RnBbdvH8TEGVHIs9H4d2drhkOzf0syZuD/OZvvlu6GDbP4g=='],
+  'node_modules/@typescript-eslint/visitor-keys': ['8.62.0', 'https://registry.npmjs.org/@typescript-eslint/visitor-keys/-/visitor-keys-8.62.0.tgz', 'sha512-CY3uyFSRbcQv3nnSv8S0+lDftMVz6P963PoRlxrV7ew/Md564g9ut60PYzdLM5qW4jFn93GBF+Soi90ISAN+GQ=='],
   'node_modules/eslint': ['10.5.0', 'https://registry.npmjs.org/eslint/-/eslint-10.5.0.tgz', 'sha512-1y+7C+vi12bUK1IpZeaV3gsH9fHLBmPvYmPx42pvT/E9yG0IC8g3PUZZgp0+JLJl7ZDK0flc2gc+Aw9dpCvIsQ=='],
   'node_modules/typescript': ['6.0.3', 'https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz', 'sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=='],
-  'node_modules/typescript-eslint': ['8.61.1', 'https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.61.1.tgz', 'sha512-V7PayAfJokV3pEHgN7/v03D1SpujhRfQtYLbLIiBfDDncdg4PAiRBfoS4cnCANK4jmAPncczi59QO3afiXUlNw=='],
+  'node_modules/typescript-eslint': ['8.62.0', 'https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.62.0.tgz', 'sha512-8QxXi+ZACKX0kaqO4gY8kn0RSD9gFfaHDWwjqtEN48aWCBkX4MJaufWN+c3BzlrXLOxfywDL8CaoqUwcRq4j4Q=='],
 };
 
 for (const [path, [version, resolved, integrity]] of Object.entries(artifacts)) {
@@ -819,7 +821,7 @@ esac
 
 for toolchain_doc_contract in \
   'ESLint 10.5.0' \
-  'typescript-eslint 8.61.1' \
+  'typescript-eslint 8.62.0' \
   '@types/node 22.19.21' \
   'TypeScript 6.0.3' \
   'Node 25'; do
@@ -829,6 +831,44 @@ for toolchain_doc_contract in \
       exit 1
     fi
   done
+done
+
+typescript_eslint_patch_status=$(sed -n 's/^status: //p' "$TYPESCRIPT_ESLINT_PATCH_PLAN")
+case "$typescript_eslint_patch_status" in
+  pending_hosted_verification)
+    if ! grep -Fq 'Exact-head hosted checks remain pending.' "$TYPESCRIPT_ESLINT_PATCH_PLAN"; then
+      printf '%s\n' "Pending TypeScript ESLint patch plan must record pending exact-head hosted checks." >&2
+      exit 1
+    fi
+    ;;
+  completed)
+    for plan_contract in \
+      'Exact-head hosted Node 22 and Node 24 checks passed.' \
+      'isolated hostile mutations were rejected'; do
+      if ! grep -Fq "$plan_contract" "$TYPESCRIPT_ESLINT_PATCH_PLAN"; then
+        printf '%s\n' "Completed TypeScript ESLint patch plan must retain verification evidence: $plan_contract" >&2
+        exit 1
+      fi
+    done
+    ;;
+  *)
+    printf '%s\n' "TypeScript ESLint patch plan must be pending hosted verification or completed." >&2
+    exit 1
+    ;;
+esac
+
+for plan_contract in \
+  'typescript-eslint 8.62.0' \
+  'released on June 22, 2026' \
+  'TypeScript 6.0.3' \
+  'ESLint 10.5.0' \
+  'Node 22 and Node 24' \
+  'lockfile-pinned install' \
+  'make check'; do
+  if ! grep -Fq "$plan_contract" "$TYPESCRIPT_ESLINT_PATCH_PLAN"; then
+    printf '%s\n' "TypeScript ESLint patch plan must retain local verification evidence: $plan_contract" >&2
+    exit 1
+  fi
 done
 
 for typescript_6_plan_contract in \
