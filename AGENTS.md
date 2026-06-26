@@ -15,7 +15,7 @@
 ## Development commands
 
 - Install dependencies: `npm ci`
-- Keep TypeScript 6.0.3, ESLint 10.5.0, typescript-eslint 8.61.1, and
+- Keep TypeScript 6.0.3, ESLint 10.5.0, typescript-eslint 8.62.0, and
   @types/node 22.19.21 exact unless a focused dependency plan updates the
   lockfile and verification gate.
 - Keep the explicit Node and VS Code type roots required by TypeScript 6;

@@ -65,7 +65,7 @@ prototypes, wrong types, multiline text, and size limits.
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 
 The reviewed development-toolchain baseline is TypeScript 6.0.3 and ESLint 10.5.0,
-with typescript-eslint 8.61.1 and @types/node 22.19.21. The compiler
+with typescript-eslint 8.62.0 and @types/node 22.19.21. The compiler
 uses explicit Node and VS Code type roots; Node 25 still requires dedicated
 compatibility review rather than an unreviewed lockfile update.
 
