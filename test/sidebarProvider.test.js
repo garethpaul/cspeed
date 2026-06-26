@@ -62,7 +62,7 @@ function createHarness() {
 	};
 }
 
-test('resolves a script-enabled media-scoped webview with a nonce CSP', () => {
+test('resolves a script-only media-scoped webview with a nonce CSP', () => {
 	const harness = createHarness();
 
 	assert.deepEqual(harness.webview.options, {
@@ -71,6 +71,7 @@ test('resolves a script-enabled media-scoped webview with a nonce CSP', () => {
 	});
 	assert.deepEqual(harness.joinedPaths, [['media'], ['media', 'main.js']]);
 	assert.match(harness.webview.html, /default-src 'none'; base-uri 'none'; form-action 'none'/);
+	assert.doesNotMatch(harness.webview.html, /(?:img|style)-src vscode-webview-resource:/);
 	assert.match(harness.webview.html, /script-src 'nonce-[A-Za-z0-9+/]{22}=='/);
 	assert.match(
 		harness.webview.html,

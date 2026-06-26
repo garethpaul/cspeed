@@ -23,6 +23,7 @@ Priority:
 - Keep root build verification tied to TypeScript compilation
 - Keep webview script permissions and local-resource roots explicit
 - Keep webview base URI and form submission behavior explicitly disabled
+- Keep the current webview CSP free of unused image and stylesheet capabilities
 - Keep the webview button handler in the checked media script
 - Generate webview CSP nonces with Node crypto rather than `Math.random`
 - Normalize webview alert text before displaying VS Code notifications

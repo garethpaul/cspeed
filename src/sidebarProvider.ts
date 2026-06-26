@@ -40,8 +40,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 			"default-src 'none'",
 			"base-uri 'none'",
 			"form-action 'none'",
-			`img-src ${webview.cspSource}`,
-			`style-src ${webview.cspSource}`,
 			`script-src 'nonce-${nonce}'`
 		].join('; ');
 

@@ -1,5 +1,20 @@
 # Changes
 
+## 2026-06-26
+
+- Removed unused local image and stylesheet permissions from the sidebar
+  webview CSP so the current HTML permits only its nonce-authorized media
+  script while retaining the existing default, base URI, and form denials.
+- Added executable and source-baseline contracts for the script-only policy.
+- Repository and external-directory `make check` passed all 30 Node tests,
+  lint, generated-output parity, and a zero-finding moderate audit; isolated
+  source and test-contract mutations failed for the intended reason.
+- Exact-head Check runs `28250620479` and `28250622257` passed on Node 22 and
+  24; CodeQL run `28250620698` passed Actions and JavaScript/TypeScript
+  analysis.
+- Codex review was blocked before analysis by repeated OpenAI API HTTP 401
+  failures; immutable exact-head manual review found no actionable findings.
+
 ## 2026-06-25
 
 - Refreshed typescript-eslint 8.62.0 with exact package-family artifacts
