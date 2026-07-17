@@ -173,7 +173,7 @@ fi
 if ! grep -Fq 'CSPEED_REPOSITORY_MAKEFILE := 1' "$MAKEFILE" ||
   ! grep -Fq 'override ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))' "$MAKEFILE" ||
   ! grep -Fq '@node "$(ROOT)scripts/run-make.js" "$(ROOT)" check' "$MAKEFILE" ||
-  ! grep -Fq '__cspeed_check: __cspeed_verify' "$MAKEFILE"; then
+  ! grep -Fq '__cspeed_check:: __cspeed_verify' "$MAKEFILE"; then
   printf '%s\n' "Makefile must expose trusted wrappers and token-gated private launcher targets." >&2
   exit 1
 fi
@@ -188,8 +188,36 @@ if ! grep -Fq 'run check:generated' "$ROOT_DIR/Makefile"; then
   exit 1
 fi
 
-if ! grep -Fq '__cspeed_verify: __cspeed_lint __cspeed_test __cspeed_build __cspeed_audit' "$MAKEFILE"; then
-  printf '%s\n' "Private Make verification must run lint, test, build, and audit gates." >&2
+if ! grep -Fq '__cspeed_verify:: __cspeed_lint __cspeed_test __cspeed_build __cspeed_audit __cspeed_baseline' "$MAKEFILE"; then
+  printf '%s\n' "Private Make verification must run lint, test, build, audit, and baseline gates." >&2
+  exit 1
+fi
+
+# Gate rules must stay double-colon. Make silently lets a later single-colon rule
+# override an earlier recipe, which would delete the test run and this very script
+# from the gate; `::` makes make itself reject the redefinition at parse time.
+for gate_rule in \
+  "lint" \
+  "test" \
+  "build" \
+  "audit" \
+  "verify" \
+  "check" \
+  "__cspeed_lint" \
+  "__cspeed_test" \
+  "__cspeed_build" \
+  "__cspeed_audit" \
+  "__cspeed_baseline" \
+  "__cspeed_verify" \
+  "__cspeed_check"; do
+  if [ "$(grep -cE "^${gate_rule}[[:space:]]*::" "$MAKEFILE")" -ne 1 ]; then
+    printf '%s\n' "Makefile gate rule must be defined exactly once as a double-colon rule: $gate_rule" >&2
+    exit 1
+  fi
+done
+
+if grep -qE '^(lint|test|build|audit|verify|check|__cspeed_[a-z]+)[[:space:]]*:([^:]|$)' "$MAKEFILE"; then
+  printf '%s\n' "Makefile gate rules must never use single-colon form, which Make allows to be silently overridden." >&2
   exit 1
 fi
 
@@ -235,8 +263,8 @@ for test_contract in \
   fi
 done
 
-if [ "$(grep -c 'node scripts/run-npm-gate.js' "$MAKEFILE")" -ne 4 ]; then
-  printf '%s\n' "Private Make targets must expose exactly four fixed npm gate recipes." >&2
+if [ "$(grep -c 'node scripts/run-npm-gate.js' "$MAKEFILE")" -ne 5 ]; then
+  printf '%s\n' "Private Make targets must expose exactly five fixed npm gate recipes." >&2
   exit 1
 fi
 

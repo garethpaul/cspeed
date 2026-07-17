@@ -42,7 +42,8 @@ function expectedInvocations(root) {
 		['--prefix', root, 'run', 'lint'],
 		['--prefix', root, 'test'],
 		['--prefix', root, 'run', 'check:generated'],
-		['--prefix', root, 'audit', '--audit-level=moderate']
+		['--prefix', root, 'audit', '--audit-level=moderate'],
+		['--prefix', root, 'run', 'check']
 	];
 }
 

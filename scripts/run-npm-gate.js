@@ -10,7 +10,8 @@ const allowedArguments = new Set([
 	'run\0lint',
 	'test',
 	'run\0check:generated',
-	'audit\0--audit-level=moderate'
+	'audit\0--audit-level=moderate',
+	'run\0check'
 ]);
 const npmArguments = process.argv.slice(2);
 
