@@ -232,7 +232,10 @@ for launcher_contract in \
   "'MAKEFILE_LIST'" \
   "'CSPEED_LAUNCH_CONTEXT'" \
   "'CSPEED_LAUNCH_TOKEN'" \
-  "shell: false"; do
+  "shell: false" \
+  "const gateRules = [" \
+  "definitions.length !== 1" \
+  "double-colon form"; do
   if ! grep -Fq "$launcher_contract" "$MAKE_LAUNCHER"; then
     printf '%s\n' "Node Make launcher must retain boundary contract: $launcher_contract" >&2
     exit 1

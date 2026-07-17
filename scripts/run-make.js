@@ -22,18 +22,54 @@ if (args.length !== 2 || !targets.has(args[1])) {
 	process.exit(2);
 }
 
+const gateRules = [
+	'lint',
+	'test',
+	'build',
+	'audit',
+	'verify',
+	'check',
+	'__cspeed_lint',
+	'__cspeed_test',
+	'__cspeed_build',
+	'__cspeed_audit',
+	'__cspeed_baseline',
+	'__cspeed_verify',
+	'__cspeed_check'
+];
+
 let root;
+let makefile;
 try {
 	root = fs.realpathSync(args[0]);
 	const launcherRoot = fs.realpathSync(path.resolve(__dirname, '..'));
 	if (root !== launcherRoot) throw new Error('launcher checkout mismatch');
 	const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-	const makefile = fs.readFileSync(path.join(root, 'Makefile'), 'utf8');
+	makefile = fs.readFileSync(path.join(root, 'Makefile'), 'utf8');
 	if (packageJson.name !== 'cspeed' || !/^CSPEED_REPOSITORY_MAKEFILE := 1$/m.test(makefile)) {
 		throw new Error('identity mismatch');
 	}
 } catch {
 	console.error('Repository path does not identify a CSpeed checkout.');
+	process.exit(2);
+}
+
+// The gate cannot rely on any checked-in script to police the Makefile that
+// decides whether that script runs at all. This launcher is the CI entry point
+// and executes before Make parses anything, so the structural check belongs
+// here: every gate rule must be defined exactly once, in double-colon form.
+// Make silently honours a later single-colon rule over an earlier recipe
+// (warning on stderr, exit 0), which would drop the test run and the baseline
+// gate together.
+for (const rule of gateRules) {
+	const definitions = makefile.match(new RegExp(`^${rule}[ \t]*::`, 'gm')) || [];
+	if (definitions.length !== 1) {
+		console.error(`Makefile must define gate rule ${rule} exactly once as a double-colon rule.`);
+		process.exit(2);
+	}
+}
+if (/^(?:lint|test|build|audit|verify|check|__cspeed_[a-z]+)[ \t]*:(?!:)/m.test(makefile)) {
+	console.error('Makefile gate rules must use double-colon form; Make silently overrides single-colon recipes.');
 	process.exit(2);
 }
 
